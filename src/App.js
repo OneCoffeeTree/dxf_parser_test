@@ -1,24 +1,33 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState } from 'react';
+import Header from './common/header/Header';
+import Map from './component/map/Map';
+import { Grid, Backdrop } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import Tree from './component/layers/Tree';
+import { DxfProvider } from './common/context/DxfContext';
 
 function App() {
+
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <DxfProvider>
+      <div className="App">
+        <Header setOpen={setOpen} />
+        <Grid container className='GridContainer'>
+          <Grid item xs={6}>
+            <Map />
+          </Grid>
+          <Grid item xs={6}>
+            <Tree />
+          </Grid>
+        </Grid>
+      </div>
+      <Backdrop open={open}>
+        <CircularProgress style={{ color: '#fff' }} />
+      </Backdrop>
+    </DxfProvider>
   );
 }
 
