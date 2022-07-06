@@ -10,6 +10,8 @@ const groupByLayer = function dxfObjectGroupByLayer(object) {
         result[entity.layer].push(entity);
     }); 
 
+    
+
     return result;
 }
 

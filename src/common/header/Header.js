@@ -6,14 +6,21 @@ import DxfParser from "dxf-parser";
 import { DxfContext } from '../../common/context/DxfContext';
 import { groupByLayer } from './Utils';
 import { checkGeometryType } from './GeometryType';
+import { defsData } from '../../data/proj';
 
 
 function Header(props) {
 
     const { state, setState } = useContext(DxfContext);
     const fileRef = useRef(null);
-
+    
     useEffect(() => {
+        
+        setState({
+            ...state,
+            coordSys : defsData[0][0],
+        })
+
         if(!fileRef.current) {
             fileRef.current = document.querySelector('#dxf_parser');
         }
@@ -31,20 +38,27 @@ function Header(props) {
                 file: null,
                 dxfObject: null,
             })
-            
         } else {
             fileRef.current.click();
         }
     }
 
+    const handleCoordSysSelect = (e) =>{
+        setState({
+            ...state,
+            coordSys: e.target.value,
+        });
+    }
+
     const handleFileChange = (e) => {
+        
         props.setOpen(true);
         const reader = new FileReader();
         reader.readAsBinaryString(e.target.files[0]); 
         reader.onloadend = () => {
             const parser = new DxfParser();
             const _dxfObject = parser.parseSync(reader.result);
-            
+            debugger;
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
 
@@ -61,22 +75,22 @@ function Header(props) {
              * 6. 각각의 dxfObject를 순환하면서 
              */
 
-            Object.keys(dxfObject).forEach(key => {
-                const obj = {};
-                obj.layer = key;
-                obj.features = [];
-                const geometryType = checkGeometryType(dxfObject[key]);
-                obj.geometry_type = geometryType;
-                dxfObject[key].forEach(feature => {
-                    if(!feature.vertices) {
+            // Object.keys(dxfObject).forEach(key => {
+            //     const obj = {};
+            //     obj.layer = key;
+            //     obj.features = [];
+            //     const geometryType = checkGeometryType(dxfObject[key]);
+            //     obj.geometry_type = geometryType;
+            //     dxfObject[key].forEach(feature => {
+            //         if(!feature.vertices) {
                         
-                    } else if(feature.vertices.length === 1) {
+            //         } else if(feature.vertices.length === 1) {
                         
-                    } else if(feature.vertices.length > 1) {
+            //         } else if(feature.vertices.length > 1) {
 
-                    }
-                })
-            })
+            //         }
+            //     })
+            // })
             
 
             setState({
@@ -93,16 +107,20 @@ function Header(props) {
     return(
         <header className='Header'>
             <Typography variant='h5' className='Title'>DXF viewer</Typography>
+            
+            <select className="CoordSys" onChange={handleCoordSysSelect}>
+                {
+                    defsData.map(ele => (
+                        <option key={ele[0]} value={ele[0]}>{ele[0]}</option>
+                    ))   
+                }
+            </select>
+            
             <Icon fontSize='small' className='FolderIcon'>folder</Icon>
             <input type='file' id='dxf_parser' onChange={handleFileChange} accept='.dxf'/>
-            <div className='FileInfoDiv'>{state.file ? state.file.name : ""}</div>
+            <div className='FileInfoDiv' onClick={onClickFileUpload} >{state.file ? state.file.name : ""}</div>
             <Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickFileUpload}>{state.file ? "파일 수정" : "파일 업로드"}</Button>
 
-            <form>
-                <select className="CoordSys" >
-                    
-                </select>
-            </form>
         </header>
     )
 }

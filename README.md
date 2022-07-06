@@ -12,13 +12,7 @@
 
    1- blocks,entities,header,tables 중에 tables.layer.layers, entities 사용
 
-진행
-
-#
-
-4. 파일 수정 버튼 누를시 기존 피쳐 삭제하기
-
-5. 사용자로부터 적용할 좌표계 받을수 있게 하기 콤보박스 사용
+4. 사용자로부터 적용할 좌표계 받을수 있게 하기 콤보박스 사용
 
    1- Header/ listener - handeler - setState(...state, coordSys) ->
    Map/ useEffect([state.coordSys]) -
@@ -27,11 +21,27 @@
 
    3- 수치지도\_377074 - 5186, 나머지 2개 5174
 
-6. MultiLineString 만으로 되어있는데 타입 받아서 할수있게 변경할것
+5. 파일 수정 버튼 누를시 기존 피쳐 삭제하기
 
-7. 피쳐/피쳐컬랙션에 속성 집어넣기
+진행
+
+#
+
+6. 피쳐/피쳐컬랙션에 속성 집어넣기
+
+   -1 현재 dxfObject에는 entities만 정리하여 들어가 있고 tables의 속성값들은 들어가 있지 않음 변경할것
+
+7. MultiLineString 만으로 되어있는데 타입 분류할것
+
+   -1 조건식 짜서 알아서 분리되게끔?
+
+   -2 dxf에는 주로 insert 와 polyline 로 구성 되며 insert는 (Multi)Point 로 polyline은 MultiLineString으로 닫힌(시작점과 끝점이 같은) polyline만 MultiPolygon으로 분류
+
+   -3 entities중에 type : "INSERT" 의 경우 vertices 가 아닌 position으로 표현됨
 
 8. 각각의 레이어를 클릭시 선택 할 수 있게 적용
+
+   1- 선택된 레이어를 우측의 영역에 표시할것?
 
 #
 

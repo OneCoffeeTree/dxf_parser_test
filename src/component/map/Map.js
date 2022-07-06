@@ -1,23 +1,24 @@
 import { useContext, useEffect, useRef } from 'react';
+import './Map.css';
 import 'ol/ol.css';
+import { Feature, View } from 'ol';
 import olMap from 'ol/Map';
 import { Vector as VectorSource, OSM as OSMSource } from 'ol/source';
 import { Vector as VectorLayer, VectorImage as VectorImageLayer, Tile as TileLayer } from 'ol/layer';
-import { Feature } from 'ol';
 import { transform } from 'ol/proj';
 import { GeoJSON } from 'ol/format';
 import { MultiLineString,MultiPoint,MultiPolygon, Point } from 'ol/geom';
-
-// import { GeoJSONWriter } from 'jsts/org/locationtech/jts/io';
-
-import View from 'ol/View';
-import './Map.css';
-import { Fill, Stroke, Style } from 'ol/style';
-import { useTabContext } from '@mui/base';
-import { DxfContext } from '../../common/context/DxfContext';
-import { checkGeometryType } from '../../common/header/GeometryType';
-import proj4 from 'proj4';
 import CircleStyle from 'ol/style/Circle';
+import { Fill, Stroke, Style } from 'ol/style';
+
+import { Select } from 'ol/interaction';
+
+import { click } from 'ol/events/condition';
+
+import { DxfContext } from '../../common/context/DxfContext';
+import { proj } from '../../data/proj';
+
+import proj4 from 'proj4';
 
 
 
@@ -25,7 +26,6 @@ function Map() {
     
     const { state, setState } = useContext(DxfContext);
     const mapRef = useRef(null);
-    
     // const polygonFeature = new Feature({
     //     geometry: new MultiPolygon(
     //         [[[-3e6, -1e6], [-3e6, 1e6], [-1e6, 1e6], [-1e6, -1e6], [-3e6, -1e6]]]
@@ -62,105 +62,24 @@ function Map() {
     //         })
     //     })
     // });
-    proj4.defs([
-        [
-           'EPSG:4326',
-           '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        ],
-        [
-           'EPSG:3857',
-           '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs'
-        ],
-        [
-           'EPSG:5173',
-           '+proj=tmerc +lat_0=38 +lon_0=125.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +no_defs'
-        ],
-        [
-           'EPSG:5174',
-           '+proj=tmerc +lat_0=38 +lon_0=127.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +no_defs' // 전라남도_담양군_고서면_산덕리_산19_28.dxf
-        ],
-        [
-           'EPSG:5175',
-           '+proj=tmerc +lat_0=38 +lon_0=127.0028902777778 +k=1 +x_0=200000 +y_0=550000 +ellps=bessel +units=m +no_defs'
-        ],
-        [
-           'EPSG:5176',
-           '+proj=tmerc +lat_0=38 +lon_0=129.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +no_defs'
-        ],
-        [
-           'EPSG:5177',
-           '+proj=tmerc +lat_0=38 +lon_0=131.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +no_defs'
-        ],
-        [
-           'EPSG:5178',
-           '+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=bessel +units=m +no_defs'
-        ],
-        [
-           'EPSG:5179',
-           '+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5180',
-           '+proj=tmerc +lat_0=38 +lon_0=125 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5181',
-           '+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5182',
-           '+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=550000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5183',
-           '+proj=tmerc +lat_0=38 +lon_0=129 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5184',
-           '+proj=tmerc +lat_0=38 +lon_0=131 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5185',
-           '+proj=tmerc +lat_0=38 +lon_0=125 +k=1 +x_0=200000 +y_0=600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5186',
-           '+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' // 수치지도_377074.dxf
-        ],
-        [
-           'EPSG:5187',
-           '+proj=tmerc +lat_0=38 +lon_0=129 +k=1 +x_0=200000 +y_0=600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ],
-        [
-           'EPSG:5188',
-           '+proj=tmerc +lat_0=38 +lon_0=131 +k=1 +x_0=200000 +y_0=600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        ]
-     ]);
 
-    //  const pointFeature = new Feature({ // 5174?
-    //         geometry: new Point(proj4('EPSG:5174', 'EPSG:3857',[294901.705,226626.314])),
-    //         name : 'test'
-    //     });
-
-    
-    
+    proj();
 
     useEffect(() => {
+
+        
+
         if(!mapRef.current) { 
             const osmLyr = new TileLayer({
                 source: new OSMSource(),
             });
 
             const style = [
-                new Style({
-                    fill: new Fill({
-                    color: '#eeeeee',
-                    }),
-                }),
+                
                 new Style({
                     stroke: new Stroke({
                         color: 'blue',
-                        width:6,
+                        width:5,
                     })
                 }),
                 new Style({
@@ -173,16 +92,11 @@ function Map() {
                 })
             ]
             const vectorLayer = new VectorLayer({
-                // background: '#1a2b39',
                 imageRatio: 2,
                 source: new VectorSource({
-                    // url: 'https://openlayers.org/data/vector/ecoregions.json',
                     format: new GeoJSON(),
                 }),
-                style: function (feature) {
-                    // const color = feature.get('COLOR') || '#eeeeee';
-                    // style.getFill().setColor(color);
-                    
+                style: function (feature) {            
                     return style;
                 }
             })
@@ -194,25 +108,36 @@ function Map() {
                 layers: [osmLyr, vectorLayer],
                 view: new View({
                     center: [0,0],
+                    zoom: 2,
                     
-                    zoom: 7,
-                    
-                    
-                    // projection: 'EPSG:4326',
                 }),
             })
 
             
+            
+            const selectInteraction = new Select({
+                condition: click,
+                style: new Style({
+                    stroke: new Stroke({
+                        color: 'white', 
+                        width: '4', 
+                    }),
+                    fill: new Fill({
+                        color:'red', 
+                    })
+                })
+            })
+
+            mapRef.current.addInteraction(selectInteraction);
+
+
 
             
-            
-
-
         }
     }, [mapRef])
 
     useEffect(()=>{
-        
+        mapRef.current.getLayers().getArray()[1].getSource().clear();
         if(state.dxfObject){
             // mapRef.current.getLayers().getArray()[1].getSource().addFeatures([pointFeature,pointFeature1,pointFeature2]);
             
@@ -237,7 +162,7 @@ function Map() {
 
             // mapRef.current.getLayers().getArray()[1].getSource().addFeature(newFeature);
 
-
+            
 
             Object.keys(state.dxfObject).forEach(key => { // 레이어 뽑기
                 // const obj = {};
@@ -251,11 +176,15 @@ function Map() {
                     if(!feature.vertices) {
                         
                     } else {
+                        
                         // state.dxfObject[key].forEach(feature => {
-                        const featureCoordArr =[] ; // 피쳐
+                        
+                        
 
+                        const featureCoordArr =[] ; // 피쳐
                         feature.vertices.forEach(coord=>{
-                            featureCoordArr.push(proj4('EPSG:5186', 'EPSG:3857',[coord.x, coord.y]));
+                            
+                            featureCoordArr.push(proj4(state.coordSys, 'EPSG:3857',[coord.x, coord.y]));
                             
                         })
                         layerCoordArr.push(featureCoordArr)
@@ -265,6 +194,7 @@ function Map() {
                     
                     
                 })
+                
                 const newFeature = new Feature({
                     geometry: new MultiLineString(layerCoordArr),
 
@@ -273,13 +203,16 @@ function Map() {
                 mapRef.current.getLayers().getArray()[1].getSource().addFeatures([newFeature]);
                 
             })
-            console.log(mapRef.current.getLayers().getArray()[1].getSource().getFeatures());
+            // console.log(mapRef.current.getLayers().getArray()[1].getSource().getFeatures());
             const extent = mapRef.current.getLayers().getArray()[1].getSource().getExtent();
             mapRef.current.getView().fit(extent, mapRef.current.getSize());
             mapRef.current.getView().setZoom(mapRef.current.getView().getZoom() - 1);
-            debugger;
-        }
-    },[state.dxfObject])
+
+        } 
+            
+        
+        
+    },[state.dxfObject,state.coordSys])
 
     // useEffect(()=>{
 
@@ -288,7 +221,7 @@ function Map() {
     //         name : 'test'
     //     });
 
-    //     debugger;
+
     // },[mapRef])
     // useEffect(() => {
     //     if(props.state.dxfObject) {
