@@ -220,7 +220,7 @@ function Map() {
                     new Style({
                         stroke: new Stroke({
                             color,
-                            width:0.1,
+                            width:1,
                         })
                     }),
                     new Style({
@@ -236,7 +236,7 @@ function Map() {
                 newFeature.setStyle(
                     featureStyle
                 )
-
+            
 
 
                 mapRef.current.getLayers().getArray()[1].getSource().addFeatures([newFeature]);
