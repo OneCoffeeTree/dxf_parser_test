@@ -10,12 +10,16 @@ const groupByLayer = function dxfObjectGroupByLayer(object) {
         result[entity.layer].push(entity);
     }); 
 
-    
-
     return result;
+}
+
+const getLayers = (object) =>{
+    const layers = object.tables.layer.layers;
+    return layers;
 }
 
 
 export {
     groupByLayer,
+    getLayers,
 }

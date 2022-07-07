@@ -27,21 +27,25 @@
 
 #
 
-6. 피쳐/피쳐컬랙션에 속성 집어넣기
+6. 각각의 레이어를 클릭시 선택 할 수 있게 적용
+
+   1- 선택된 레이어를 우측의 영역에 표시할것?
+
+   2- 라디오그룹으로 해야하는지? 기본적으로 모두 선택 해놓고 오른쪽에서 체크해제시 해당 피쳐 안보이게?
+
+   3- 왼쪽 지도에서 선택시 어떤 반응?
+
+7. 피쳐/피쳐컬랙션에 속성 집어넣기
 
    -1 현재 dxfObject에는 entities만 정리하여 들어가 있고 tables의 속성값들은 들어가 있지 않음 변경할것
 
-7. MultiLineString 만으로 되어있는데 타입 분류할것
+8. MultiLineString 만으로 되어있는데 타입 분류할것
 
    -1 조건식 짜서 알아서 분리되게끔?
 
    -2 dxf에는 주로 insert 와 polyline 로 구성 되며 insert는 (Multi)Point 로 polyline은 MultiLineString으로 닫힌(시작점과 끝점이 같은) polyline만 MultiPolygon으로 분류
 
    -3 entities중에 type : "INSERT" 의 경우 vertices 가 아닌 position으로 표현됨
-
-8. 각각의 레이어를 클릭시 선택 할 수 있게 적용
-
-   1- 선택된 레이어를 우측의 영역에 표시할것?
 
 #
 

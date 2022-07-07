@@ -4,7 +4,7 @@ import { Button, Typography } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import DxfParser from "dxf-parser";
 import { DxfContext } from '../../common/context/DxfContext';
-import { groupByLayer } from './Utils';
+import { getLayers, groupByLayer } from './Utils';
 import { checkGeometryType } from './GeometryType';
 import { defsData } from '../../data/proj';
 
@@ -36,7 +36,8 @@ function Header(props) {
             setState({
                 ...state,
                 file: null,
-                dxfObject: null,
+                entities:null,
+                layers:null,
             })
         } else {
             fileRef.current.click();
@@ -58,12 +59,12 @@ function Header(props) {
         reader.onloadend = () => {
             const parser = new DxfParser();
             const _dxfObject = parser.parseSync(reader.result);
-            debugger;
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
-
-            const dxfObject = groupByLayer(_dxfObject);
-
+            
+            const entities = groupByLayer(_dxfObject);
+            const layers = getLayers(_dxfObject);
+            
             
             
             /**
@@ -95,8 +96,9 @@ function Header(props) {
 
             setState({
                 ...state,
-                dxfObject,
-                file: e.target.files[0],
+                entities, 
+                layers, 
+                file: e.target.files[0], 
             });
             props.setOpen(false);
         }

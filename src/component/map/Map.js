@@ -78,8 +78,7 @@ function Map() {
                 
                 new Style({
                     stroke: new Stroke({
-                        color: 'blue',
-                        width:5,
+                        width:2,
                     })
                 }),
                 new Style({
@@ -119,8 +118,8 @@ function Map() {
                 condition: click,
                 style: new Style({
                     stroke: new Stroke({
-                        color: 'white', 
-                        width: '4', 
+                        color: 'blue', 
+                        width: '5', 
                     }),
                     fill: new Fill({
                         color:'red', 
@@ -129,16 +128,21 @@ function Map() {
             })
 
             mapRef.current.addInteraction(selectInteraction);
-
+            selectInteraction.on('select',(e)=>{
+                // console.log(e.target.features_.array_);  // 선택시 해당 선택된 피쳐(들) 에 대한 정보 출력
+            })
+            
 
 
             
         }
     }, [mapRef])
 
-    useEffect(()=>{
+    useEffect(()=>{ // 파일이 변경되거나 좌표계가 변경될 시
         mapRef.current.getLayers().getArray()[1].getSource().clear();
-        if(state.dxfObject){
+
+        if(state.entities){
+
             // mapRef.current.getLayers().getArray()[1].getSource().addFeatures([pointFeature,pointFeature1,pointFeature2]);
             
             // mapRef.current.getLayers().getArray()[1].getSource().addFeature(pointFeature);
@@ -164,14 +168,15 @@ function Map() {
 
             
 
-            Object.keys(state.dxfObject).forEach(key => { // 레이어 뽑기
+            Object.keys(state.entities).forEach(key => { // 레이어 뽑기
+                
                 // const obj = {};
                 // obj.layer = key;
                 // obj.features = [];
                 // const geometryType = checkGeometryType(state.dxfObject[key]);
                 // obj.geometry_type = geometryType;
                 const layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
-                state.dxfObject[key].forEach(feature => { // 피쳐 뽑기
+                state.entities[key].forEach(feature => { // 피쳐 뽑기
 
                     if(!feature.vertices) {
                         
@@ -188,18 +193,52 @@ function Map() {
                             
                         })
                         layerCoordArr.push(featureCoordArr)
-                            
+                        
                         // });
                     }
                     
                     
                 })
                 
+                // Object.prototype.hasOwnProperty() 사용하여 key 값이 있는지 확인하고 이를 분기로 있을경우 속성 받고 없을경우 name:key, color:black ??
+                // layer에 있는 color값이 10진이기 때문에 16진으로 변환후 적용이 필요ㅎ마
+
+                // if(state.layers.hasOwnProperty(key)){
+                
+                const color = '#'+state.layers[key].color.toString(16).padStart(6,0);
+                
                 const newFeature = new Feature({
                     geometry: new MultiLineString(layerCoordArr),
-
-                    name : 'test1'
+                    name : key, 
+                                
                 });
+                // }
+                
+
+                const featureStyle = [
+                
+                    new Style({
+                        stroke: new Stroke({
+                            color,
+                            width:0.1,
+                        })
+                    }),
+                    new Style({
+                        image: new CircleStyle({
+                          radius: 2,
+                          fill: new Fill({
+                            color,
+                          }),
+                        })
+                    })
+                ]
+
+                newFeature.setStyle(
+                    featureStyle
+                )
+
+
+
                 mapRef.current.getLayers().getArray()[1].getSource().addFeatures([newFeature]);
                 
             })
@@ -209,10 +248,11 @@ function Map() {
             mapRef.current.getView().setZoom(mapRef.current.getView().getZoom() - 1);
 
         } 
-            
         
         
-    },[state.dxfObject,state.coordSys])
+        
+        
+    },[state])
 
     // useEffect(()=>{
 

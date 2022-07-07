@@ -1,27 +1,39 @@
 import { createContext, useState } from 'react';
 
 const DxfContext = createContext({
-    dxfObject: null,
+    entities: null,
+    layers: null,
     file: null,
     coordSys: null,
 });
 
 const DxfProvider = ({ children }) => {
     const [state, setState] = useState({
-        dxfObject: null,
+        entities: null,
         file: null,
         coordSys: null,
     });
 
-    const setDxfObject = (dxfObject) => {
+    const setEntities = (entities) => {
         setState({
             ...state,
-            dxfObject
+            entities
         });
     }
 
-    const getDxfObject = () => {
-        return state.dxfObject;
+    const getEntities = () => {
+        return state.entities;
+    }
+
+    const setLayers = (layers) => {
+        setState({
+            ...state,
+            layers
+        });
+    }
+
+    const getLayers = () => {
+        return state.layers;
     }
 
     const setFile = (file) => {
@@ -52,8 +64,11 @@ const DxfProvider = ({ children }) => {
                 state,
                 setState,
 
-                setDxfObject,
-                getDxfObject,
+                setEntities,
+                getEntities,
+
+                setLayers,
+                getLayers,
                 
                 setFile,
                 getFile,
