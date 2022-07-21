@@ -4,10 +4,11 @@ import 'ol/ol.css';
 import { Feature, View } from 'ol';
 import olMap from 'ol/Map';
 import { Vector as VectorSource, OSM as OSMSource } from 'ol/source';
-import { Vector as VectorLayer, VectorImage as VectorImageLayer, Tile as TileLayer } from 'ol/layer';
+import { Vector as VectorLayer, VectorImage as VectorImageLayer, Tile as TileLayer, Group as LayerGroup } from 'ol/layer';
 import { transform } from 'ol/proj';
 import { GeoJSON } from 'ol/format';
 import { MultiLineString,MultiPoint,MultiPolygon, Point } from 'ol/geom';
+import { createEmpty, extend } from 'ol/extent';
 import CircleStyle from 'ol/style/Circle';
 import { Fill, Stroke, Style } from 'ol/style';
 
@@ -16,15 +17,15 @@ import { Select } from 'ol/interaction';
 import { click } from 'ol/events/condition';
 
 import { DxfContext } from '../../common/context/DxfContext';
-import { proj } from '../../data/proj';
+import { defsData, proj } from '../../data/proj';
 
 import proj4 from 'proj4';
+import { SetMealSharp } from '@mui/icons-material';
 
 
-
-function Map() {
+function Map(props) {
     
-    const { state, setState } = useContext(DxfContext);
+    const { file, entities, layers, coordSys, setMap, setCoordSys } = useContext(DxfContext);
     const mapRef = useRef(null);
     // const polygonFeature = new Feature({
     //     geometry: new MultiPolygon(
@@ -90,21 +91,24 @@ function Map() {
                     })
                 })
             ]
-            const vectorLayer = new VectorLayer({
-                imageRatio: 2,
-                source: new VectorSource({
-                    format: new GeoJSON(),
-                }),
-                style: function (feature) {            
-                    return style;
-                }
+            // const vectorLayer = new VectorLayer({
+            //     imageRatio: 2,
+            //     source: new VectorSource({
+            //         format: new GeoJSON(),
+            //     }),
+            //     style: function (feature) {            
+            //         return style;
+            //     }
+            // })
+            const vectorLayerGroup = new LayerGroup({
+                layers: [],
             })
-
             
 
             mapRef.current = new olMap({
                 target: 'map',
-                layers: [osmLyr, vectorLayer],
+                // layers: [osmLyr, vectorLayer],
+                layers: [osmLyr, vectorLayerGroup],
                 view: new View({
                     center: [0,0],
                     zoom: 2,
@@ -114,6 +118,8 @@ function Map() {
 
             
             
+            
+
             const selectInteraction = new Select({
                 condition: click,
                 style: new Style({
@@ -136,12 +142,18 @@ function Map() {
 
             
         }
-    }, [mapRef])
+
+        setMap(mapRef.current);
+        setCoordSys(defsData[0][0]);
+
+    }, [])
 
     useEffect(()=>{ // 파일이 변경되거나 좌표계가 변경될 시
-        mapRef.current.getLayers().getArray()[1].getSource().clear();
-
-        if(state.entities){
+        mapRef.current.getLayers().getArray()[1].getLayers().clear();
+        // props.setOpen(true);
+        
+        if(entities){
+            
 
             // mapRef.current.getLayers().getArray()[1].getSource().addFeatures([pointFeature,pointFeature1,pointFeature2]);
             
@@ -166,9 +178,7 @@ function Map() {
 
             // mapRef.current.getLayers().getArray()[1].getSource().addFeature(newFeature);
 
-            
-
-            Object.keys(state.entities).forEach(key => { // 레이어 뽑기
+            Object.keys(entities).forEach(key => { // 레이어 뽑기
                 
                 // const obj = {};
                 // obj.layer = key;
@@ -176,28 +186,17 @@ function Map() {
                 // const geometryType = checkGeometryType(state.dxfObject[key]);
                 // obj.geometry_type = geometryType;
                 const layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
-                state.entities[key].forEach(feature => { // 피쳐 뽑기
 
+                entities[key].forEach(feature => { // 피쳐 뽑기
                     if(!feature.vertices) {
                         
                     } else {
-                        
-                        // state.dxfObject[key].forEach(feature => {
-                        
-                        
-
                         const featureCoordArr =[] ; // 피쳐
                         feature.vertices.forEach(coord=>{
-                            
-                            featureCoordArr.push(proj4(state.coordSys, 'EPSG:3857',[coord.x, coord.y]));
-                            
+                            featureCoordArr.push(proj4(coordSys, 'EPSG:3857',[coord.x, coord.y]));
                         })
                         layerCoordArr.push(featureCoordArr)
-                        
-                        // });
                     }
-                    
-                    
                 })
                 
                 // Object.prototype.hasOwnProperty() 사용하여 key 값이 있는지 확인하고 이를 분기로 있을경우 속성 받고 없을경우 name:key, color:black ??
@@ -205,14 +204,22 @@ function Map() {
 
                 // if(state.layers.hasOwnProperty(key)){
                 
-                const color = '#'+state.layers[key].color.toString(16).padStart(6,0);
+                const color = '#'+layers[key].color.toString(16).padStart(6,0);
                 
+                const newLayer = new VectorLayer({
+                    id: key,
+                    imageRatio: 2,
+                    source: new VectorSource({
+                        format: new GeoJSON(),
+                    })
+                })
+
+
                 const newFeature = new Feature({
                     geometry: new MultiLineString(layerCoordArr),
                     name : key, 
                                 
                 });
-                // }
                 
 
                 const featureStyle = [
@@ -236,23 +243,26 @@ function Map() {
                 newFeature.setStyle(
                     featureStyle
                 )
-            
-
-
-                mapRef.current.getLayers().getArray()[1].getSource().addFeatures([newFeature]);
+                newLayer.getSource().addFeatures([newFeature]);
+                mapRef.current.getLayers().getArray()[1].getLayers().push(newLayer);
                 
             })
-            // console.log(mapRef.current.getLayers().getArray()[1].getSource().getFeatures());
-            const extent = mapRef.current.getLayers().getArray()[1].getSource().getExtent();
+
+            const extent = new createEmpty();
+            const layerGroupArr = mapRef.current.getLayers().getArray()[1].getLayers().getArray();
+
+            layerGroupArr.forEach(vectorLayer => {
+                extend(extent, vectorLayer.getSource().getExtent());
+            });
+
             mapRef.current.getView().fit(extent, mapRef.current.getSize());
             mapRef.current.getView().setZoom(mapRef.current.getView().getZoom() - 1);
-
-        } 
+            
+        }
         
         
         
-        
-    },[state])
+    },[file, coordSys])
 
     // useEffect(()=>{
 

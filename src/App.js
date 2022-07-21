@@ -10,16 +10,16 @@ import { DxfProvider } from './common/context/DxfContext';
 function App() {
 
   const [open, setOpen] = useState(false);
-
+  
   return (
     <DxfProvider>
       <div className="App">
         <Header setOpen={setOpen} />
         <Grid container className='GridContainer'>
-          <Grid item xs={6}>
-            <Map />
+          <Grid item xs={8}>
+            <Map setOpen={setOpen} />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4} className='LayerGrid'>
             <Tree />
           </Grid>
         </Grid>

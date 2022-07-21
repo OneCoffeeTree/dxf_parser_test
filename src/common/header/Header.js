@@ -11,15 +11,10 @@ import { defsData } from '../../data/proj';
 
 function Header(props) {
 
-    const { state, setState } = useContext(DxfContext);
+    const { setFile, setEntities, setLayers, setCoordSys, getFile } = useContext(DxfContext);
     const fileRef = useRef(null);
     
     useEffect(() => {
-        
-        setState({
-            ...state,
-            coordSys : defsData[0][0],
-        })
 
         if(!fileRef.current) {
             fileRef.current = document.querySelector('#dxf_parser');
@@ -33,22 +28,16 @@ function Header(props) {
     const onClickFileUpload = () => {
         if(!!fileRef.current.value) {
             fileRef.current.value = null;
-            setState({
-                ...state,
-                file: null,
-                entities:null,
-                layers:null,
-            })
+            setEntities(null);
+            setLayers(null);
+            setFile(null);
         } else {
             fileRef.current.click();
         }
     }
 
     const handleCoordSysSelect = (e) =>{
-        setState({
-            ...state,
-            coordSys: e.target.value,
-        });
+        setCoordSys(e.target.value);
     }
 
     const handleFileChange = (e) => {
@@ -62,8 +51,11 @@ function Header(props) {
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
             
-            const entities = groupByLayer(_dxfObject);
-            const layers = getLayers(_dxfObject);
+            const result = groupByLayer(_dxfObject)
+
+            const _entities = result.entities;
+            const _layers = result.layers;
+            // const layers = getLayers(_dxfObject);
             
             
             
@@ -93,18 +85,12 @@ function Header(props) {
             //     })
             // })
             
-
-            setState({
-                ...state,
-                entities, 
-                layers, 
-                file: e.target.files[0], 
-            });
+            setEntities(_entities);
+            setLayers(_layers);
+            setFile(e.target.files[0]);
             props.setOpen(false);
         }
     }
-
-    
 
     return(
         <header className='Header'>
@@ -120,8 +106,8 @@ function Header(props) {
             
             <Icon fontSize='small' className='FolderIcon'>folder</Icon>
             <input type='file' id='dxf_parser' onChange={handleFileChange} accept='.dxf'/>
-            <div className='FileInfoDiv' onClick={onClickFileUpload} >{state.file ? state.file.name : ""}</div>
-            <Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickFileUpload}>{state.file ? "파일 수정" : "파일 업로드"}</Button>
+            <div className='FileInfoDiv' onClick={onClickFileUpload} >{getFile() ? getFile().name : ""}</div>
+            <Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickFileUpload}>{getFile() ? "파일 수정" : "파일 업로드"}</Button>
 
         </header>
     )

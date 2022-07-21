@@ -1,6 +1,7 @@
 import { createContext, useState } from 'react';
 
 const DxfContext = createContext({
+    map: null,
     entities: null,
     layers: null,
     file: null,
@@ -8,61 +9,47 @@ const DxfContext = createContext({
 });
 
 const DxfProvider = ({ children }) => {
-    const [state, setState] = useState({
-        entities: null,
-        file: null,
-        coordSys: null,
-    });
+    const [map, setMap] = useState(null);
+    const [entities, setEntities] = useState(null);
+    const [layers, setLayers] = useState(null);
+    const [file, setFile] = useState(null);
+    const [coordSys, setCoordSys] = useState(null);
 
-    const setEntities = (entities) => {
-        setState({
-            ...state,
-            entities
-        });
+    const getMap = () => {
+        return map;
     }
+
 
     const getEntities = () => {
-        return state.entities;
+        return entities;
     }
 
-    const setLayers = (layers) => {
-        setState({
-            ...state,
-            layers
-        });
-    }
 
     const getLayers = () => {
-        return state.layers;
+        return layers;
     }
 
-    const setFile = (file) => {
-        setState({
-            ...state,
-            file
-        })
-    }
 
     const getFile = () => {
-        return state.file;
+        return file;
     }
 
-    const setCoordSys = (coordSys) => {
-        setState({
-            ...state,
-            coordSys
-        })
-    }
 
     const getCoordSys = () => {
-        return state.coordSys;
+        return coordSys;
     }
 
     return (
         <DxfContext.Provider
             value={{
-                state,
-                setState,
+                map,
+                entities,
+                layers,
+                file,
+                coordSys,
+
+                setMap,
+                getMap,
 
                 setEntities,
                 getEntities,

@@ -5,3 +5,13 @@
 .GridContainer {
     height: calc(100% - 50px);
 }
+
+.LayerGrid {
+    height: 100%;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+/* .LayerGrid {
+    margin-top: 10px;
+} */
