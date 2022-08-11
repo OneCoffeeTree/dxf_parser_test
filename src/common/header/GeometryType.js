@@ -1,7 +1,7 @@
 const geometryObject = {
     multiPoint: {
         type: 'MULTIPOINT',
-        case: ['POINT', 'TEXT', 'CIRCLE'],
+        case: ['POINT', 'TEXT', 'CIRCLE', 'INSERT'],
     },
     multiLineString: {
         type: 'MULTILINESTRING',
@@ -25,7 +25,7 @@ const checkGeometryType = (layer) => {
             throw '한 레이어에 속한 피처의 타입이 다릅니다.';
         }
     })
-
+//
     switch(type) {
         case geometryObject.multiPoint.case.includes(type):
             return geometryObject.multiPoint.type;

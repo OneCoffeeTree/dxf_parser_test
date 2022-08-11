@@ -12,6 +12,9 @@ const groupByLayer = function dxfObjectGroupByLayer(object, setter) {
     object.entities.forEach(entity => {
         entities[entity.layer].push(entity);
     }); 
+    // console.log(entities);
+    // console.log(layers);
+    
 
     keys.forEach(key => {
         if(entities[key].length === 0) {

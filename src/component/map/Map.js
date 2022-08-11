@@ -27,42 +27,7 @@ function Map(props) {
     
     const { file, entities, layers, coordSys, setMap, setCoordSys } = useContext(DxfContext);
     const mapRef = useRef(null);
-    // const polygonFeature = new Feature({
-    //     geometry: new MultiPolygon(
-    //         [[[-3e6, -1e6], [-3e6, 1e6], [-1e6, 1e6], [-1e6, -1e6], [-3e6, -1e6]]]
-    //     )
-    // });
     
-    // const pointFeature1 = new Feature({
-    //     geometry: new Point([266182.87,553529.94]),
-    //     name : 'test'
-    // });
-    // const pointFeature2 = new Feature({
-    //     geometry: new Point([0.87,0.94]),
-    //     name : 'test'
-    // });
-    // const pointFeature3 = new Feature({
-    //     geometry: new MultiLineString([[[259529.7,548137.73],[259508.72,548103.37],[259484.75,548064.24],[259459.45,548028.04],[259442.84,547999.54],[259432.525,547981.886]]]),
-    //     name : 'test'
-    // });
-    
-
-    // const vectorsource = new VectorSource({
-    // });
-    // vectorsource.addFeatures(polygonFeature,pointFeature);
-
-    // const vectorlayer = new VectorLayer({
-    //     source: vectorsource,
-    //     style: new Style({
-    //         stroke: new Stroke({
-    //             width: 3,
-    //             color: [255, 0, 0, 1]
-    //         }),
-    //         fill: new Fill({
-    //             color: [0, 0, 255, 0.6]
-    //         })
-    //     })
-    // });
 
     proj();
 
@@ -135,7 +100,8 @@ function Map(props) {
 
             mapRef.current.addInteraction(selectInteraction);
             selectInteraction.on('select',(e)=>{
-                // console.log(e.target.features_.array_);  // 선택시 해당 선택된 피쳐(들) 에 대한 정보 출력
+                // layer 선택시 동작해야할것 넣기?
+                // console.log(e);
             })
             
 
@@ -153,7 +119,7 @@ function Map(props) {
         // props.setOpen(true);
         
         if(entities){
-            
+            console.log(entities);
 
             // mapRef.current.getLayers().getArray()[1].getSource().addFeatures([pointFeature,pointFeature1,pointFeature2]);
             
@@ -177,27 +143,71 @@ function Map(props) {
             // });
 
             // mapRef.current.getLayers().getArray()[1].getSource().addFeature(newFeature);
-
             Object.keys(entities).forEach(key => { // 레이어 뽑기
                 
+
                 // const obj = {};
                 // obj.layer = key;
                 // obj.features = [];
                 // const geometryType = checkGeometryType(state.dxfObject[key]);
                 // obj.geometry_type = geometryType;
                 const layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
-
+                let _geometry;
+                let type;
+                let pol_chk =true; // cad파일의 구성이 폴리곤이 없기때문에 lineString이 polygon인지 아닌지 체크하기 위해 사용
+                // lineStringg중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는?
                 entities[key].forEach(feature => { // 피쳐 뽑기
-                    if(!feature.vertices) {
+                    
+
+                    if(feature.type==='POINT' || feature.type==='TEXT' ||feature.type==='CIRCLE' ||feature.type==='INSERT'){
+                        if(feature.position){
+                            layerCoordArr.push(proj4(coordSys, 'EPSG:3857',[feature.position.x,feature.position.y]))
+                        }else if(feature.endPoint){
+                            
+                            layerCoordArr.push(proj4(coordSys, 'EPSG:3857',[feature.endPoint.x,feature.endPoint.y]))
+                        }
+                        type = 'MultiPoint'
+                        // _geometry = new MultiPoint(layerCoordArr)
+
+                    }else if(feature.type==='POLYLINE' || feature.type==='LWPOLYLINE'){
+                        if(feature.vertices) {
+                            const featureCoordArr =[] ; // 피쳐
+                            feature.vertices.forEach(coord=>{
+                                featureCoordArr.push(proj4(coordSys, 'EPSG:3857',[coord.x, coord.y]));
+                            })
+                            if(featureCoordArr[0][0] !== featureCoordArr[featureCoordArr.length-1][0] && featureCoordArr[0][1] !== featureCoordArr[featureCoordArr.length-1][1]){
+                                pol_chk = false;
+                            }
+                            
+                            layerCoordArr.push(featureCoordArr);
+                        }
+                        type = 'MultiLineString'
+                        // _geometry = new MultiLineString(layerCoordArr)
                         
-                    } else {
-                        const featureCoordArr =[] ; // 피쳐
-                        feature.vertices.forEach(coord=>{
-                            featureCoordArr.push(proj4(coordSys, 'EPSG:3857',[coord.x, coord.y]));
-                        })
-                        layerCoordArr.push(featureCoordArr)
-                    }
+                        
+                    }else if(feature.type==='POLYGON' || feature.type==='LWPOLYGON'){
+                        
+                        type = 'MultiPolygon'
+                    }                    
                 })
+
+                
+                if(type === 'MultiPoint'){
+                    _geometry = new MultiPoint(layerCoordArr)
+                }else if(type === 'MultiLineString'){
+                    
+                    if(pol_chk){
+                        // debugger;
+                        _geometry = new MultiPolygon([layerCoordArr]);
+                        
+                    }else{
+                        _geometry = new MultiLineString(layerCoordArr);
+                    }
+                }else if(type === 'MultiPolygon'){
+                    _geometry = new MultiPolygon(layerCoordArr);
+                }
+
+                
                 
                 // Object.prototype.hasOwnProperty() 사용하여 key 값이 있는지 확인하고 이를 분기로 있을경우 속성 받고 없을경우 name:key, color:black ??
                 // layer에 있는 color값이 10진이기 때문에 16진으로 변환후 적용이 필요ㅎ마
@@ -214,12 +224,17 @@ function Map(props) {
                     })
                 })
 
+                // entities[key][0].type 를 통해 타입 읽고 이를 MULTIPOINT, MULTILINESTRING, MULTIPOLYGON 으로 변경 필요
+                // polygon도 type은 POLYLINE, LWPOLYLINE 로 올탠데? ex C0062243 => 가능한것만 바꾸는 걸로
+
 
                 const newFeature = new Feature({
-                    geometry: new MultiLineString(layerCoordArr),
+                    geometry: _geometry, 
                     name : key, 
                                 
                 });
+                
+      
                 
 
                 const featureStyle = [

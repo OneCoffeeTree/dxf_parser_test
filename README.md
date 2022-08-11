@@ -29,29 +29,28 @@
 
    2- 라디오그룹으로 해야하는지? => 체크박스를 사용하여 진행
 
-진행
+   3- all 체크박스 누를경우 모두 체크(해제)되고 체크 된것과 안된것이 섞여있을경우 체크박스가 체크가 아닌 indeterminate 값을 true로 주어야함
 
-#
+   4- 기본적으로는 모두 체크되게하고 체크 해제시 그에 반응하여 지도의 레이어를 안보이게?
 
-3- all 체크박스 누를경우 모두 체크(해제)되고 체크 된것과 안된것이 섞여있을경우 체크박스가 체크가 아닌 indeterminate 값을 true로 주어야함
-
-4- 기본적으로는 모두 체크되게하고 체크 해제시 그에 반응하여 지도의 레이어를 안보이게?
-
-7. 피쳐/피쳐컬랙션에 속성 집어넣기
-
-   -1 현재 dxfObject에는 entities만 정리하여 들어가 있고 tables의 속성값들은 들어가 있지 않음 변경할것(완료)
-
-   -2 https://vagran.github.io/dxf-viewer-example/ 와 색상이 다른데 값이 지정이 안되어 검은색으로 표시되던것을 하얀색으로 값을 줘서 그런것
-
-   -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
-
-8. MultiLineString 만으로 되어있는데 타입 분류할것
+7. MultiLineString 만으로 되어있는데 타입 분류할것
 
    -1 조건식 짜서 알아서 분리되게끔?
 
    -2 dxf에는 주로 insert 와 polyline 로 구성 되며 insert는 (Multi)Point 로 polyline은 MultiLineString으로 닫힌(시작점과 끝점이 같은) polyline만 MultiPolygon으로 분류
 
    -3 entities중에 type : "INSERT" 의 경우 vertices 가 아닌 position으로 표현됨
+   진행
+
+#
+
+1. 피쳐/피쳐컬랙션에 속성 집어넣기
+
+   -1 현재 dxfObject에는 entities만 정리하여 들어가 있고 tables의 속성값들은 들어가 있지 않음 변경할것
+
+   -2 https://vagran.github.io/dxf-viewer-example/ 와 색상이 다른데 값이 지정이 안되어 검은색으로 표시되던것을 하얀색으로 값을 줘서 그런것
+
+   -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
 
 #
 

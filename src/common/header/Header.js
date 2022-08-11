@@ -43,19 +43,27 @@ function Header(props) {
     const handleFileChange = (e) => {
         
         props.setOpen(true);
-        const reader = new FileReader();
-        reader.readAsBinaryString(e.target.files[0]); 
+        const reader = new FileReader(); 
+        // FileReader 로 진행시 운영체제의 기본 한글 인코딩을 기본으로 인식하여 한글 깨짐 => FileReader의 문제가 아니라 readAsBinaryString의 문제
+        // readAsBinaryString 에서는 인코딩 타입을 지정 할수 없기때문, readAsText 클래스로 변경후 인코딩 타입을 "windows-949" 로 지정하여 해결
+        // 추후 헤더에서 인코딩 타입을 받아 받은 인코딩타입으로 진행 가능 ( 인코딩 종류 적은 콤보박스 + 값 선택시 값 받아서 아래 readAsText에 인코딩 타입 입력? )(좌표계처럼 처리하면 될듯?)
+
+        // reader.readAsBinaryString(e.target.files[0]); 
+        reader.readAsText(e.target.files[0],"windows-949"); 
+
         reader.onloadend = () => {
             const parser = new DxfParser();
-            const _dxfObject = parser.parseSync(reader.result);
+            const _dxfObject = parser.parseSync(reader.result); 
+            debugger;
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
             
             const result = groupByLayer(_dxfObject)
-
+            
             const _entities = result.entities;
             const _layers = result.layers;
             // const layers = getLayers(_dxfObject);
+            
             
             
             

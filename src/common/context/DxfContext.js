@@ -6,6 +6,7 @@ const DxfContext = createContext({
     layers: null,
     file: null,
     coordSys: null,
+    encoding:null,
 });
 
 const DxfProvider = ({ children }) => {
@@ -14,6 +15,7 @@ const DxfProvider = ({ children }) => {
     const [layers, setLayers] = useState(null);
     const [file, setFile] = useState(null);
     const [coordSys, setCoordSys] = useState(null);
+    // const [encoding, setEncoding] = useState(null);  //encoding타입
 
     const getMap = () => {
         return map;
@@ -39,6 +41,10 @@ const DxfProvider = ({ children }) => {
         return coordSys;
     }
 
+    // const getEncoding = () => {
+    //     return encoding;
+    // }
+
     return (
         <DxfContext.Provider
             value={{
@@ -47,6 +53,7 @@ const DxfProvider = ({ children }) => {
                 layers,
                 file,
                 coordSys,
+                // encoding,
 
                 setMap,
                 getMap,
@@ -62,6 +69,10 @@ const DxfProvider = ({ children }) => {
 
                 setCoordSys,
                 getCoordSys,
+
+                // setEncoding,
+                // getEncoding,
+
             }}
         >
             {children}
