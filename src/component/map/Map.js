@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef } from 'react';
 import './Map.css';
 import 'ol/ol.css';
-import { Feature, View } from 'ol';
+import { Feature,  View } from 'ol';
 import olMap from 'ol/Map';
-import { Vector as VectorSource, OSM as OSMSource } from 'ol/source';
+import { Vector as VectorSource, OSM as OSMSource, ImageWMS, TileWMS } from 'ol/source';
 import { Vector as VectorLayer, VectorImage as VectorImageLayer, Tile as TileLayer, Group as LayerGroup } from 'ol/layer';
 import { transform } from 'ol/proj';
 import { GeoJSON } from 'ol/format';
@@ -21,6 +21,7 @@ import { defsData, proj } from '../../data/proj';
 
 import proj4 from 'proj4';
 import { SetMealSharp } from '@mui/icons-material';
+import ImageLayer from 'ol/layer/Image';
 
 
 function Map(props) {
@@ -65,21 +66,35 @@ function Map(props) {
             //         return style;
             //     }
             // })
+            const pointLayer = new TileLayer({
+                visible: true,
+                source: new TileWMS({
+                    url: 'http://localhost:8080/geoserver/demo/wms',
+                    params: {
+                        'FORMAT': 'image/png',
+                        tiled: true,
+                        "LAYERS": 'demo:dxf_point',
+                        SRS : 'EPSG:5179'
+                    },
+                    serverType: 'geoserver'
+                })
+            });
+
             const vectorLayerGroup = new LayerGroup({
                 layers: [],
+                // visible: true
             })
             
-
             mapRef.current = new olMap({
                 target: 'map',
-                // layers: [osmLyr, vectorLayer],
-                layers: [osmLyr, vectorLayerGroup],
+                layers: [osmLyr,vectorLayerGroup, pointLayer],
                 view: new View({
                     center: [0,0],
                     zoom: 2,
                     
                 }),
             })
+            
 
             
             
@@ -116,10 +131,11 @@ function Map(props) {
 
     useEffect(()=>{ // 파일이 변경되거나 좌표계가 변경될 시
         mapRef.current.getLayers().getArray()[1].getLayers().clear();
+        // mapRef.current.getLayers().getArray()[1]?.getLayers().clear();
         // props.setOpen(true);
         
         if(entities){
-            console.log(entities);
+            // console.log(entities);
 
             // mapRef.current.getLayers().getArray()[1].getSource().addFeatures([pointFeature,pointFeature1,pointFeature2]);
             
@@ -158,7 +174,6 @@ function Map(props) {
                 // lineStringg중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는?
                 entities[key].forEach(feature => { // 피쳐 뽑기
                     
-
                     if(feature.type==='POINT' || feature.type==='TEXT' ||feature.type==='CIRCLE' ||feature.type==='INSERT'){
                         if(feature.position){
                             layerCoordArr.push(proj4(coordSys, 'EPSG:3857',[feature.position.x,feature.position.y]))
@@ -197,7 +212,6 @@ function Map(props) {
                 }else if(type === 'MultiLineString'){
                     
                     if(pol_chk){
-                        // debugger;
                         _geometry = new MultiPolygon([layerCoordArr]);
                         
                     }else{
@@ -233,8 +247,6 @@ function Map(props) {
                     name : key, 
                                 
                 });
-                
-      
                 
 
                 const featureStyle = [
@@ -272,9 +284,9 @@ function Map(props) {
 
             mapRef.current.getView().fit(extent, mapRef.current.getSize());
             mapRef.current.getView().setZoom(mapRef.current.getView().getZoom() - 1);
+         
             
         }
-        
         
         
     },[file, coordSys])

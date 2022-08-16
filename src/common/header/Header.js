@@ -34,7 +34,7 @@ function Header(props) {
         } else {
             fileRef.current.click();
         }
-    }
+    }// -/*+3241
 
     const handleCoordSysSelect = (e) =>{
         setCoordSys(e.target.value);
@@ -55,6 +55,7 @@ function Header(props) {
             const parser = new DxfParser();
             const _dxfObject = parser.parseSync(reader.result); 
             debugger;
+            
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
             
@@ -116,7 +117,7 @@ function Header(props) {
             <input type='file' id='dxf_parser' onChange={handleFileChange} accept='.dxf'/>
             <div className='FileInfoDiv' onClick={onClickFileUpload} >{getFile() ? getFile().name : ""}</div>
             <Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickFileUpload}>{getFile() ? "파일 수정" : "파일 업로드"}</Button>
-
+            {/* <Button className='BtnDownload' variant='contained' style={{ backgroundColor: '#009688' } } >다운로드</Button> */}
         </header>
     )
 }

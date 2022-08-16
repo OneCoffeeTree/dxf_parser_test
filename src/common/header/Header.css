@@ -32,3 +32,7 @@ color: #fff;
 #CoordSys {
     text-align: center;
 }
+
+.BtnDownload {
+    margin: 0 0.5em;
+}

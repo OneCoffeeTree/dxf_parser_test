@@ -12,6 +12,8 @@
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "dxf-parser": "^1.1.2",
+    "geojson2shape": "^0.2.4",
+    "ogr2ogr": "^3.1.1",
     "ol": "^6.14.1",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
