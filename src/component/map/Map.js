@@ -23,18 +23,14 @@ import proj4 from 'proj4';
 import { SetMealSharp } from '@mui/icons-material';
 import ImageLayer from 'ol/layer/Image';
 
-
 function Map(props) {
     
-    const { file, entities, layers, coordSys, setMap, setCoordSys } = useContext(DxfContext);
+    const { file, entities, layers, coordSys, setMap, setCoordSys, setLayers } = useContext(DxfContext);
     const mapRef = useRef(null);
-    
 
     proj();
 
     useEffect(() => {
-
-        
 
         if(!mapRef.current) { 
             const osmLyr = new TileLayer({
@@ -57,15 +53,7 @@ function Map(props) {
                     })
                 })
             ]
-            // const vectorLayer = new VectorLayer({
-            //     imageRatio: 2,
-            //     source: new VectorSource({
-            //         format: new GeoJSON(),
-            //     }),
-            //     style: function (feature) {            
-            //         return style;
-            //     }
-            // })
+
             const pointLayer = new TileLayer({
                 visible: true,
                 source: new TileWMS({
@@ -82,23 +70,18 @@ function Map(props) {
 
             const vectorLayerGroup = new LayerGroup({
                 layers: [],
-                // visible: true
             })
             
             mapRef.current = new olMap({
                 target: 'map',
-                layers: [osmLyr,vectorLayerGroup, pointLayer],
+                // layers: [osmLyr, vectorLayerGroup, pointLayer],
+                layers: [osmLyr, vectorLayerGroup],
                 view: new View({
                     center: [0,0],
                     zoom: 2,
                     
                 }),
             })
-            
-
-            
-            
-            
 
             const selectInteraction = new Select({
                 condition: click,
@@ -118,10 +101,7 @@ function Map(props) {
                 // layer 선택시 동작해야할것 넣기?
                 // console.log(e);
             })
-            
 
-
-            
         }
 
         setMap(mapRef.current);
@@ -130,48 +110,16 @@ function Map(props) {
     }, [])
 
     useEffect(()=>{ // 파일이 변경되거나 좌표계가 변경될 시
-        mapRef.current.getLayers().getArray()[1].getLayers().clear();
-        // mapRef.current.getLayers().getArray()[1]?.getLayers().clear();
-        // props.setOpen(true);
+        mapRef.current.getLayers().getArray()[1].getLayers().clear(); 
         
         if(entities){
-            // console.log(entities);
-
-            // mapRef.current.getLayers().getArray()[1].getSource().addFeatures([pointFeature,pointFeature1,pointFeature2]);
-            
-            // mapRef.current.getLayers().getArray()[1].getSource().addFeature(pointFeature);
-
-
-            
-            // const featureCoordArrs =[] ;
-            // state.dxfObject['A0013112'].forEach(feature => {
-            //     const featureCoordArr =[] ;
-
-            //     feature.vertices.forEach(coord=>{
-            //         featureCoordArr.push([coord.x, coord.y]);
-            //     })
-            //     featureCoordArrs.push(featureCoordArr)
-                
-            // });
-            // const newFeature = new Feature({
-            //     geometry: new MultiLineString(featureCoordArrs),
-            //     name : 'test1'
-            // });
-
-            // mapRef.current.getLayers().getArray()[1].getSource().addFeature(newFeature);
             Object.keys(entities).forEach(key => { // 레이어 뽑기
-                
 
-                // const obj = {};
-                // obj.layer = key;
-                // obj.features = [];
-                // const geometryType = checkGeometryType(state.dxfObject[key]);
-                // obj.geometry_type = geometryType;
                 const layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
                 let _geometry;
                 let type;
                 let pol_chk =true; // cad파일의 구성이 폴리곤이 없기때문에 lineString이 polygon인지 아닌지 체크하기 위해 사용
-                // lineStringg중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는?
+                // lineStringg중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는? => 라인으로 분류
                 entities[key].forEach(feature => { // 피쳐 뽑기
                     
                     if(feature.type==='POINT' || feature.type==='TEXT' ||feature.type==='CIRCLE' ||feature.type==='INSERT'){
@@ -182,7 +130,6 @@ function Map(props) {
                             layerCoordArr.push(proj4(coordSys, 'EPSG:3857',[feature.endPoint.x,feature.endPoint.y]))
                         }
                         type = 'MultiPoint'
-                        // _geometry = new MultiPoint(layerCoordArr)
 
                     }else if(feature.type==='POLYLINE' || feature.type==='LWPOLYLINE'){
                         if(feature.vertices) {
@@ -197,15 +144,12 @@ function Map(props) {
                             layerCoordArr.push(featureCoordArr);
                         }
                         type = 'MultiLineString'
-                        // _geometry = new MultiLineString(layerCoordArr)
-                        
                         
                     }else if(feature.type==='POLYGON' || feature.type==='LWPOLYGON'){
                         
                         type = 'MultiPolygon'
                     }                    
                 })
-
                 
                 if(type === 'MultiPoint'){
                     _geometry = new MultiPoint(layerCoordArr)
@@ -220,13 +164,9 @@ function Map(props) {
                 }else if(type === 'MultiPolygon'){
                     _geometry = new MultiPolygon(layerCoordArr);
                 }
-
-                
                 
                 // Object.prototype.hasOwnProperty() 사용하여 key 값이 있는지 확인하고 이를 분기로 있을경우 속성 받고 없을경우 name:key, color:black ??
-                // layer에 있는 color값이 10진이기 때문에 16진으로 변환후 적용이 필요ㅎ마
-
-                // if(state.layers.hasOwnProperty(key)){
+                // layer에 있는 color값이 10진이기 때문에 16진으로 변환후 적용이 필요함
                 
                 const color = '#'+layers[key].color.toString(16).padStart(6,0);
                 
@@ -237,20 +177,14 @@ function Map(props) {
                         format: new GeoJSON(),
                     })
                 })
-
                 // entities[key][0].type 를 통해 타입 읽고 이를 MULTIPOINT, MULTILINESTRING, MULTIPOLYGON 으로 변경 필요
                 // polygon도 type은 POLYLINE, LWPOLYLINE 로 올탠데? ex C0062243 => 가능한것만 바꾸는 걸로
-
-
                 const newFeature = new Feature({
                     geometry: _geometry, 
                     name : key, 
                                 
                 });
-                
-
                 const featureStyle = [
-                
                     new Style({
                         stroke: new Stroke({
                             color,
@@ -285,52 +219,10 @@ function Map(props) {
             mapRef.current.getView().fit(extent, mapRef.current.getSize());
             mapRef.current.getView().setZoom(mapRef.current.getView().getZoom() - 1);
          
-            
-        }
-        
+        } 
         
     },[file, coordSys])
 
-    // useEffect(()=>{
-
-    //     const pointFeature = new Feature({
-    //         geometry: new Point([0, 0]),
-    //         name : 'test'
-    //     });
-
-
-    // },[mapRef])
-    // useEffect(() => {
-    //     if(props.state.dxfObject) {
-
-    //         /**
-    //          * 1. dxfObject에서 
-    //          */
-
-
-
-
-
-    //         // const coordArr = [];
-    //         // props.state.dxfObject.entities[0].vertices.forEach(ele => { // object형태의 좌표값을 배열 형태로 변경
-    //         //     coordArr.push([ele.x,ele.y]);
-    //         // });
-
-
-            
-
-    //     //     props.state.dxfObject.entities.forEach(ele => {
-
-    //     //     });
-
-    //     // const writer = new GeoJSONWriter();  // jsts install 필요
-    //     // const geoJson = new GeoJSON();
-
-    //     // const newFeature = new Feature(geoJson.readGeometry(writer.write(coordArr)));
-    //     // mapRef.current.getLayers().getArray()[1].getSource().addFeature(newFeature);
-
-    //     }
-    // },[props.state.dxfObject])
     return(
         <div id='map' />
     )

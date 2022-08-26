@@ -1,75 +1,19 @@
 import { useContext, useEffect, useState } from "react";
 import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, Typography } from "@mui/material";
 import { DxfContext } from "../../common/context/DxfContext";
+import './Branch.css';
+import { getLayerType } from "../../common/Utils";
 
 
 function Branch() {
     // https://github.com/vagran/dxf-viewer-example-src/blob/master/src/components/LayersList.vue 참고
     
-    const { map, layers, setLayers } = useContext(DxfContext);
+    const { map, layers, entities, setLayers } = useContext(DxfContext);
     const [allCheck, setAllCheck] = useState(true);
 
     // 각각의 레이어 이름을 받아와서 object로 layer와 체크박스 관리?
 
-    // useEffect(()=>{
-    //     if(state.layers){
-    //         // console.log(state.layers);
-    //         // Object.keys(state.layers).forEach(key=>{
-    //         // })
-            
-            
-    //         // console.log(checkedMap);
-    //         // setChecked(pre => {
-    //         //     checked = setChecked
-    //         // }); // ? 조건문 내에서 react hooks 를 호출해서 안되는 것으로 추정..
-    //         // console.log(checked);
-
-    //         // console.log(Object.keys(state.layers).length);
-    //         // const N = Object.keys(state.layers).length;
-    //         // (arr = []).length = N;
-    //         // arr.fill(false);
-    //         // setChecked(arr);
-
-    //         // 이 useEffect 가 실행되고 나서 다시 렌더링 할 방법?
-    //         // checkedMap을 여기서 생성 하지 않고 상위 컴포넌트에서 생성후 props 로 넘기면?
-    //         // debugger;
-
-    //     }
-        
-    // },[state.layers])
-
-    // const handleChange1 = (event) => {
-    //     debugger;
-    //     setChecked([event.target.checked, event.target.checked]);
-    // };
-
-    // const handleChange2 = (event) => {
-    //     setChecked([event.target.checked, checked[1]]);
-    // };
-
-    // const handleChange3 = (event) => {
-    //     setChecked([checked[0], event.target.checked]);
-    // };
-
-    // const layerCheckBox =(
-    //     <Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
-    //         {
-    //             Object.keys(state.layers).map(ele=>{
-    //                 console.log(checkedMap.get(ele));
-    //                 return (
-    //                     <FormControlLabel value={ele} control={<Checkbox checked={checkedMap.get(ele)} />} label={ele} />
-    //                 )
-    //             })
-    //         }
-    //     </Box>
-    // );
-
-    // useEffect(() => {
-    //     if(state.map?.getLayers()?.getArray()[1]) {
-    //         console.log(state.map.getLayers().getArray()[1].getLayers().getArray()[0].getVisible());
-    //         debugger;
-    //     }
-    // }, [state.layers])
+    
 
     const handleCheckbox = (event) => {
         /**
@@ -117,11 +61,30 @@ function Branch() {
         map.getLayers().getArray()[1].getLayers().getArray().forEach(_layer => _layer.setVisible(allCheckValue));
     }
 
+    const layerLabel = (ele) => { // 타입을 받을 방법?
+
+        const type = getLayerType(entities,ele);
+        let thumnail;
+        if(type === 'MultiPoint'){
+            thumnail = '/img/w_point.png';
+        }else if(type === 'MultiLineString'){
+            thumnail = '/img/w_linestring.png';
+        }else if(type === 'MultiPolygon'){
+            thumnail = '/img/w_polygon.png';
+        }
+        const color = '#'+layers[ele].color.toString(16).padStart(6,0);
+        return (
+            <div className="labelBox">
+                <div className="ColorBox" style={{ backgroundColor: color }} />
+                
+                <div className="thumnailBox" style={{ backgroundImage : `url(${process.env.PUBLIC_URL + thumnail})` }}></div>
+                <Typography variant="caption">{ele}</Typography>
+            </div>
+        )
+    }
+
     return(
         <>
-               
-
-
             <FormGroup className="">
                 {
                     layers &&
@@ -134,7 +97,6 @@ function Branch() {
                         }
                         label='all'
                     />
-                    
                 }
                 <Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
                 {   
@@ -142,17 +104,21 @@ function Branch() {
                 layers ? 
                         Object.keys(layers).map((ele, idx)=>{
                             return (
-                                <FormControlLabel
-                                    key={idx}
-                                    value={ele}
-                                    control={
-                                        <Checkbox
-                                            checked={layers[ele].select}
-                                            onChange={(e) => handleCheckbox(e)}
-                                        />
-                                    }
-                                    label={ele}
-                                />
+                                <>
+                                    <FormControlLabel
+                                        key={ele}
+                                        value={ele}
+                                        control={
+                                            <Checkbox
+                                                checked={layers[ele].select}
+                                                onChange={(e) => handleCheckbox(e)}
+                                            />
+                                        }
+                                        label={
+                                            layerLabel(ele)
+                                        }
+                                    />
+                                </>
                             )
                         })
                         : <Typography variant="subtitle2">레이어 없음</Typography>

@@ -4,7 +4,7 @@ import { Button, Typography } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import DxfParser from "dxf-parser";
 import { DxfContext } from '../../common/context/DxfContext';
-import { getLayers, groupByLayer } from './Utils';
+import { getLayers, groupByLayer } from '../Utils';
 import { checkGeometryType } from './GeometryType';
 import { defsData } from '../../data/proj';
 
@@ -54,10 +54,10 @@ function Header(props) {
         reader.onloadend = () => {
             const parser = new DxfParser();
             const _dxfObject = parser.parseSync(reader.result); 
-            debugger;
             
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
+            // debugger;
             
             const result = groupByLayer(_dxfObject)
             

@@ -1,0 +1,20 @@
+.labelBox {
+    display: flex;
+    align-items: center;
+}
+
+.ColorBox {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.25rem;
+    border : solid
+}
+
+.thumnailBox {
+    width: 1.25rem;
+    height: 1.25rem;
+    background-size: cover;
+    /* width: 300px;
+    height: 300px; */
+    margin-right: 0.25rem;
+}
