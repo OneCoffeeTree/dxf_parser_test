@@ -106,6 +106,7 @@ function Branch() {
                             return (
                                 <>
                                     <FormControlLabel
+                                        className="formControlLabelLayout"
                                         key={ele}
                                         value={ele}
                                         control={

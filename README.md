@@ -61,4 +61,8 @@
 
    -1 Branch.js의 레이어 표시가 먼저 이루어진 후 Map.js의 레이어들의 타입구분이 진행됨
 
+1. formatWFS.writeTransaction 으로 미리 생성한 레이어 3개에 레이어 넣기
+
+   -1
+
 #

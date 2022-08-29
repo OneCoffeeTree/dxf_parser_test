@@ -173,6 +173,7 @@ function Map(props) {
                 const newLayer = new VectorLayer({
                     id: key,
                     imageRatio: 2,
+                    type ,
                     source: new VectorSource({
                         format: new GeoJSON(),
                     })

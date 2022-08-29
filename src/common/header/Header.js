@@ -7,11 +7,12 @@ import { DxfContext } from '../../common/context/DxfContext';
 import { getLayers, groupByLayer } from '../Utils';
 import { checkGeometryType } from './GeometryType';
 import { defsData } from '../../data/proj';
+import { GML, WFS } from 'ol/format';
 
 
 function Header(props) {
 
-    const { setFile, setEntities, setLayers, setCoordSys, getFile } = useContext(DxfContext);
+    const { setFile, setEntities, setLayers, setCoordSys, getFile, layers, coordSys, getMap } = useContext(DxfContext);
     const fileRef = useRef(null);
     
     useEffect(() => {
@@ -34,7 +35,45 @@ function Header(props) {
         } else {
             fileRef.current.click();
         }
-    }// -/*+3241
+    }
+
+    const onClickDownload = () =>{
+        
+        
+
+
+        const layers_ = getMap().getLayers().getArray()[1].getLayers().getArray();
+        // console.log(layers_);
+        layers_.forEach( layer_ =>{
+            console.log( `${layer_} : ${layer_.values_.type}`);
+            const type = layer_.values_.type;
+            let featureType;
+            if(layer_.values_.type === 'MultiPoint'){
+                featureType = 'dxf_point';
+            }else if(layer_.values_.type === 'MultiLineString'){
+                featureType = 'dxf_line';
+            }else if(layer_.values_.type === 'MultiPolygon'){
+                featureType = 'dxf_polygon';
+            }
+            const formatWFS = new WFS();
+            const formatGML = new GML({
+                featureNS : 'demo.com' , // 사용할 작업공간의 네임스페이스 URI?
+                featureType ,   // 레이어 이름 (ex. demo:dxf_line 이면 dxf_line 만)
+                srsName : coordSys // 좌표계 명칭  
+            })
+
+            const payload= new XMLSerializer().serializeToString(
+                formatWFS.writeTransaction([layer_], null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
+              );
+            
+
+        })
+
+        debugger;
+
+    
+        
+    }
 
     const handleCoordSysSelect = (e) =>{
         setCoordSys(e.target.value);
@@ -116,8 +155,8 @@ function Header(props) {
             <Icon fontSize='small' className='FolderIcon'>folder</Icon>
             <input type='file' id='dxf_parser' onChange={handleFileChange} accept='.dxf'/>
             <div className='FileInfoDiv' onClick={onClickFileUpload} >{getFile() ? getFile().name : ""}</div>
-            <Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickFileUpload}>{getFile() ? "파일 수정" : "파일 업로드"}</Button>
-            {/* <Button className='BtnDownload' variant='contained' style={{ backgroundColor: '#009688' } } >다운로드</Button> */}
+            <div className='btnDiv' ><Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickFileUpload}>{getFile() ? "파일 수정" : "파일 업로드"}</Button></div>
+            <div className='btnDiv' ><Button variant='contained' style={{ backgroundColor: '#009688' }} onClick={onClickDownload}>다운로드</Button></div>
         </header>
     )
 }
