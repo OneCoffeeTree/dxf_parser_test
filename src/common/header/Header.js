@@ -1,6 +1,6 @@
 import './Header.css'
 import { useEffect, useRef, useContext } from 'react';
-import { Button, Typography } from '@mui/material';
+import { Button,  Typography } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import DxfParser from "dxf-parser";
 import { DxfContext } from '../../common/context/DxfContext';
@@ -8,6 +8,7 @@ import { getLayers, groupByLayer } from '../Utils';
 import { checkGeometryType } from './GeometryType';
 import { defsData } from '../../data/proj';
 import { GML, WFS } from 'ol/format';
+import axios from 'axios';
 
 
 function Header(props) {
@@ -38,41 +39,64 @@ function Header(props) {
     }
 
     const onClickDownload = () =>{
-        
-        
-
 
         const layers_ = getMap().getLayers().getArray()[1].getLayers().getArray();
         // console.log(layers_);
         layers_.forEach( layer_ =>{
-            console.log( `${layer_} : ${layer_.values_.type}`);
+            let payload;
+            let url;
+            // console.log( `${layer_} : ${layer_.values_.type}`);
             const type = layer_.values_.type;
             let featureType;
-            if(layer_.values_.type === 'MultiPoint'){
+            
+            if(type === 'MultiPoint'){
                 featureType = 'dxf_point';
-            }else if(layer_.values_.type === 'MultiLineString'){
+            }else if(type === 'MultiLineString'){
                 featureType = 'dxf_line';
-            }else if(layer_.values_.type === 'MultiPolygon'){
+            }else if(type === 'MultiPolygon'){
                 featureType = 'dxf_polygon';
             }
             const formatWFS = new WFS();
             const formatGML = new GML({
                 featureNS : 'demo.com' , // 사용할 작업공간의 네임스페이스 URI?
                 featureType ,   // 레이어 이름 (ex. demo:dxf_line 이면 dxf_line 만)
-                srsName : coordSys // 좌표계 명칭  
+                srsName : coordSys // 좌표계 명칭 
             })
-
-            const payload= new XMLSerializer().serializeToString(
-                formatWFS.writeTransaction([layer_], null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
-              );
+            
+            debugger;
+            
+            payload= new XMLSerializer().serializeToString(
+                formatWFS.writeTransaction(layer_.getSource().getFeatures(), null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
+                );
+                
+            console.log(payload);
+            // payload = <Transaction xmlns="http://www.opengis.net/wfs" service="WFS" version="1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd"/>
+            // <Transaction xmlns="http://www.opengis.net/wfs" service="WFS" version="1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/WFS-transaction.xsd http://192.168.4.33:9090/geoserver/grp/wfs/DescribeFeatureType?typename=fiware:nyc_buildings"> <Insert> <nyc_buildings> <geometry> <Polygon xmlns="http://www.opengis.net/gml" srsName="EPSG:3857"> <exterior> <LinearRing srsName="EPSG:3857"> <posList>-12682023.77343518 4567060.841291264 -11077457.675672762 2571137.15870874 -9629434.611838378 5819405.112715591 -12682023.77343518 4567060.841291264 </posList> </LinearRing> </exterior> </Polygon> </geometry> <bin>0</bin> </nyc_buildings> </Insert></Transaction>
+            url = 'http://localhost:8080/geoserver/wfs/';   // ???
             
 
+            debugger;
+            
+            
+            axios ({    // 형식이 이게 맞는지?
+                url,
+                method: 'POST',
+                dataType: 'xml',
+                processData: false,
+                data: payload,
+                headers:{
+                "Content-Type": 'text/xml'},
+            }).then((res)=>{
+                console.log(res)
+            }).catch((err)=>{
+                console.log(err);
+            })
+
+            // layer_.getSource().refresh(); 아닌듯
+
         })
-
-        debugger;
-
-    
         
+
     }
 
     const handleCoordSysSelect = (e) =>{

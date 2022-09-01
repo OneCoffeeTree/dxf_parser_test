@@ -79,7 +79,7 @@ function Map(props) {
                 view: new View({
                     center: [0,0],
                     zoom: 2,
-                    
+                    projection: coordSys
                 }),
             })
 
@@ -115,7 +115,7 @@ function Map(props) {
         if(entities){
             Object.keys(entities).forEach(key => { // 레이어 뽑기
 
-                const layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
+                let layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
                 let _geometry;
                 let type;
                 let pol_chk =true; // cad파일의 구성이 폴리곤이 없기때문에 lineString이 polygon인지 아닌지 체크하기 위해 사용
@@ -150,17 +150,22 @@ function Map(props) {
                         type = 'MultiPolygon'
                     }                    
                 })
-                
+                if(type === 'MultiLineString' && pol_chk){
+                    type='MultiPolygon';
+                    layerCoordArr = [layerCoordArr]
+                }
+
+
                 if(type === 'MultiPoint'){
                     _geometry = new MultiPoint(layerCoordArr)
                 }else if(type === 'MultiLineString'){
                     
-                    if(pol_chk){
-                        _geometry = new MultiPolygon([layerCoordArr]);
+                    // if(pol_chk){
+                    //     _geometry = new MultiPolygon([layerCoordArr]);
                         
-                    }else{
+                    // }else{
                         _geometry = new MultiLineString(layerCoordArr);
-                    }
+                    // }
                 }else if(type === 'MultiPolygon'){
                     _geometry = new MultiPolygon(layerCoordArr);
                 }
@@ -169,7 +174,7 @@ function Map(props) {
                 // layer에 있는 color값이 10진이기 때문에 16진으로 변환후 적용이 필요함
                 
                 const color = '#'+layers[key].color.toString(16).padStart(6,0);
-                
+
                 const newLayer = new VectorLayer({
                     id: key,
                     imageRatio: 2,
@@ -211,13 +216,21 @@ function Map(props) {
             })
 
             const extent = new createEmpty();
+            debugger;
             const layerGroupArr = mapRef.current.getLayers().getArray()[1].getLayers().getArray();
 
             layerGroupArr.forEach(vectorLayer => {
                 extend(extent, vectorLayer.getSource().getExtent());
             });
-
-            mapRef.current.getView().fit(extent, mapRef.current.getSize());
+            debugger;
+            let pass = true;
+            
+            extent.forEach(ele=>{
+                if(ele.toString().indexOf('Infinity') !== -1){
+                    pass = false;
+                }
+            })
+            if(pass){mapRef.current.getView().fit(extent, mapRef.current.getSize());}
             mapRef.current.getView().setZoom(mapRef.current.getView().getZoom() - 1);
          
         } 

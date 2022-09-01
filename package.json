@@ -11,6 +11,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.27.2",
     "dxf-parser": "^1.1.2",
     "geojson2shape": "^0.2.4",
     "ogr2ogr": "^3.1.1",
@@ -47,6 +48,7 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  }
+    ] 
+  },
+  "proxy": "http://localhost:8080"
 }
