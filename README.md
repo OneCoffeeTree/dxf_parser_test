@@ -40,7 +40,15 @@
    -2 dxf에는 주로 insert 와 polyline 로 구성 되며 insert는 (Multi)Point 로 polyline은 MultiLineString으로 닫힌(시작점과 끝점이 같은) polyline만 MultiPolygon으로 분류
 
    -3 entities중에 type : "INSERT" 의 경우 vertices 가 아닌 position으로 표현됨
+
+8. layers 안에 setLayer 통해서 타입 집어넣어보기
+
+   -1 Branch.js의 레이어 표시가 먼저 이루어진 후 Map.js의 레이어들의 타입구분이 진행됨
+
+9. formatWFS.writeTransaction 으로 미리 생성한 레이어 3개에 레이어 넣기
    진행
+
+10. 다운로드시 좌표계 문제 해결필요 설정한 좌표값으로 레이어좌표계에 집어넣어서 생기는것으로 추정 => 좌표계 변경을 안해서 그런것이였음
 
 #
 
@@ -53,16 +61,12 @@
    -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
 
 1. dxf파일 변환하여 만든 벡터레이어를 저장해야함 \
-   https://stackoverflow.com/questions/18740345/how-to-save-features-layer-in-openlayers \
+   -1 https://stackoverflow.com/questions/18740345/how-to-save-features-layer-in-openlayers \
    https://openlayers.org/en/latest/apidoc/module-ol_format_GeoJSON-GeoJSON.html#writeFeature \
    두개 참조해야? 방법 물어볼것
 
-1. layers 안에 setLayer 통해서 타입 집어넣어보기
+   -2 저장은 되긴 하는데 폴리곤과 라인만 됨 포인트 개선 필요
 
-   -1 Branch.js의 레이어 표시가 먼저 이루어진 후 Map.js의 레이어들의 타입구분이 진행됨
-
-1. formatWFS.writeTransaction 으로 미리 생성한 레이어 3개에 레이어 넣기
-
-   -1
+1. cors 해결 필요 proxy 걸고 일단 진행
 
 #

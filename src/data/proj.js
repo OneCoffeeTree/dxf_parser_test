@@ -1,13 +1,15 @@
 import proj4 from "proj4";
+import {register} from 'ol/proj/proj4';
+
 const defsData = [
     [
         'EPSG:3857',
         '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs'
     ],
-   //  [
-   //     'EPSG:4326',
-   //     '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-   //  ],
+    [
+       'EPSG:4326',
+       '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    ],
     [
        'EPSG:5173',
        '+proj=tmerc +lat_0=38 +lon_0=125.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +no_defs'
@@ -76,6 +78,7 @@ const defsData = [
 const proj = ()  => {
     
     proj4.defs(defsData);
+    register(proj4);
      return proj
 }
 

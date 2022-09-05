@@ -10,11 +10,16 @@ import { defsData } from '../../data/proj';
 import { GML, WFS } from 'ol/format';
 import axios from 'axios';
 
+import { proj } from '../../data/proj';
+import proj4 from 'proj4';
+
 
 function Header(props) {
 
     const { setFile, setEntities, setLayers, setCoordSys, getFile, layers, coordSys, getMap } = useContext(DxfContext);
     const fileRef = useRef(null);
+    
+    proj();
     
     useEffect(() => {
 
@@ -62,8 +67,11 @@ function Header(props) {
                 featureType ,   // 레이어 이름 (ex. demo:dxf_line 이면 dxf_line 만)
                 srsName : coordSys // 좌표계 명칭 
             })
+            layer_.getSource().getFeatures()[0].getProperties().geometry.transform('EPSG:3857',coordSys);
+            layer_.getSource().getFeatures()[0].setProperties({geom:layer_.getSource().getFeatures()[0].getProperties().geometry}); // 얕은 복사임 나중에 수정 필요
             
-            debugger;
+            
+            // delete layer_.getSource().getFeatures()[0].getProperties().geometry;    // 삭제 안되는 이유?
             
             payload= new XMLSerializer().serializeToString(
                 formatWFS.writeTransaction(layer_.getSource().getFeatures(), null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
@@ -75,7 +83,6 @@ function Header(props) {
             url = 'http://localhost:8080/geoserver/wfs/';   // ???
             
 
-            debugger;
             
             
             axios ({    // 형식이 이게 맞는지?
@@ -85,7 +92,9 @@ function Header(props) {
                 processData: false,
                 data: payload,
                 headers:{
-                "Content-Type": 'text/xml'},
+                    "Content-Type": 'text/xml',
+                    
+            },
             }).then((res)=>{
                 console.log(res)
             }).catch((err)=>{
@@ -120,7 +129,6 @@ function Header(props) {
             
             delete _dxfObject.blocks; // 사용하는것은 tables, entities
             delete _dxfObject.header;
-            // debugger;
             
             const result = groupByLayer(_dxfObject)
             

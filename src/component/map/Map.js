@@ -20,8 +20,7 @@ import { DxfContext } from '../../common/context/DxfContext';
 import { defsData, proj } from '../../data/proj';
 
 import proj4 from 'proj4';
-import { SetMealSharp } from '@mui/icons-material';
-import ImageLayer from 'ol/layer/Image';
+
 
 function Map(props) {
     
@@ -34,7 +33,9 @@ function Map(props) {
 
         if(!mapRef.current) { 
             const osmLyr = new TileLayer({
-                source: new OSMSource(),
+                source: new OSMSource(
+                    
+                ),
             });
 
             const style = [
@@ -53,18 +54,19 @@ function Map(props) {
                     })
                 })
             ]
-
-            const pointLayer = new TileLayer({
+            
+            const wfsLayer = new TileLayer({
                 visible: true,
                 source: new TileWMS({
                     url: 'http://localhost:8080/geoserver/demo/wms',
                     params: {
                         'FORMAT': 'image/png',
                         tiled: true,
-                        "LAYERS": 'demo:dxf_point',
+                        "LAYERS": 'demo:dxf_lineq',
                         SRS : 'EPSG:5179'
                     },
-                    serverType: 'geoserver'
+                    serverType: 'geoserver',
+                    
                 })
             });
 
@@ -74,8 +76,8 @@ function Map(props) {
             
             mapRef.current = new olMap({
                 target: 'map',
-                // layers: [osmLyr, vectorLayerGroup, pointLayer],
-                layers: [osmLyr, vectorLayerGroup],
+                layers: [osmLyr, vectorLayerGroup, wfsLayer],
+                // layers: [osmLyr, vectorLayerGroup],
                 view: new View({
                     center: [0,0],
                     zoom: 2,
@@ -119,7 +121,7 @@ function Map(props) {
                 let _geometry;
                 let type;
                 let pol_chk =true; // cad파일의 구성이 폴리곤이 없기때문에 lineString이 polygon인지 아닌지 체크하기 위해 사용
-                // lineStringg중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는? => 라인으로 분류
+                // lineString중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는? => 라인으로 분류
                 entities[key].forEach(feature => { // 피쳐 뽑기
                     
                     if(feature.type==='POINT' || feature.type==='TEXT' ||feature.type==='CIRCLE' ||feature.type==='INSERT'){
@@ -216,13 +218,12 @@ function Map(props) {
             })
 
             const extent = new createEmpty();
-            debugger;
             const layerGroupArr = mapRef.current.getLayers().getArray()[1].getLayers().getArray();
 
             layerGroupArr.forEach(vectorLayer => {
                 extend(extent, vectorLayer.getSource().getExtent());
             });
-            debugger;
+            
             let pass = true;
             
             extent.forEach(ele=>{

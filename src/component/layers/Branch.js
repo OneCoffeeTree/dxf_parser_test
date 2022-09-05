@@ -104,10 +104,11 @@ function Branch() {
                 layers ? 
                         Object.keys(layers).map((ele, idx)=>{
                             return (
-                                <>
+                                
+                                
                                     <FormControlLabel
-                                        className="formControlLabelLayout"
                                         key={ele}
+                                        className="formControlLabelLayout"
                                         value={ele}
                                         control={
                                             <Checkbox
@@ -119,7 +120,7 @@ function Branch() {
                                             layerLabel(ele)
                                         }
                                     />
-                                </>
+                                
                             )
                         })
                         : <Typography variant="subtitle2">레이어 없음</Typography>
