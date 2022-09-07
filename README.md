@@ -61,6 +61,10 @@
 
     -2 저장은 되긴 하는데 폴리곤과 라인만 됨 포인트 개선 필요 => 포인트 타입의 문제였음
 
+12. 경상북도*합천군*용주면*가호리*산30외\_(2).dxf 파일이 st_makevalid 실행 안됨 => 도면 자체의 문제
+
+    -1 Geometry type (GeometryCollection) does not match column type (MultiPolygon)
+
 #
 
 1. 피쳐/피쳐컬랙션에 속성 집어넣기
@@ -72,5 +76,7 @@
    -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
 
 1. cors 해결 필요 proxy 걸고 일단 진행, 종종 프록시 걸어줬음에도 cors 발생
+
+1. Map.js 에서 line/polygon 구분 할때 vertices 수가 4개 이상인지 체크할것
 
 #

@@ -16,7 +16,7 @@ import proj4 from 'proj4';
 
 function Header(props) {
 
-    const { setFile, setEntities, setLayers, setCoordSys, getFile, layers, coordSys, getMap } = useContext(DxfContext);
+    const { setFile, setEntities, setLayers, setCoordSys, getFile, layers, entities, coordSys, getMap } = useContext(DxfContext);
     const fileRef = useRef(null);
     
     proj();
@@ -65,25 +65,33 @@ function Header(props) {
             const formatGML = new GML({
                 featureNS : 'demo.com' , // 사용할 작업공간의 네임스페이스 URI?
                 featureType ,   // 레이어 이름 (ex. demo:dxf_line 이면 dxf_line 만)
-                srsName : coordSys // 좌표계 명칭 
+                srsName : 'EPSG:3857' // 좌표계 명칭 
             })
-            layer_.getSource().getFeatures()[0].getProperties().geometry.transform('EPSG:3857',coordSys);
-            layer_.getSource().getFeatures()[0].setProperties({geom:layer_.getSource().getFeatures()[0].getProperties().geometry}); // 얕은 복사임 나중에 수정 필요
             
+            // 수정 필요
+            // layer_.getSource().getFeatures()[0].getProperties().geometry.transform('EPSG:3857',coordSys);
+            // layer_.getSource().getFeatures()[0].setProperties({geom : layer_.getSource().getFeatures()[0].getProperties().geometry}); // 얕은 복사임 나중에 수정 필요
+            // layer_.getSource().getFeatures()[0].setProperties({layer : layer_.getSource().getFeatures()[0].getProperties().name});
+            // layer_.getSource().getFeatures()[0].setProperties({color : layers[layer_.getSource().getFeatures()[0].getProperties().name].color});
+            // layer_.getSource().getFeatures()[0].setProperties({colorindex : layers[layer_.getSource().getFeatures()[0].getProperties().name].colorIndex});
+
+            console.log(layers);
+            console.log(entities);
+            // layer_.getSource().getFeatures()[0].setProperties({color : layers});
             
+
+            
+            debugger;
             // delete layer_.getSource().getFeatures()[0].getProperties().geometry;    // 삭제 안되는 이유?
             
             payload= new XMLSerializer().serializeToString(
                 formatWFS.writeTransaction(layer_.getSource().getFeatures(), null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
-                );
+            );
                 
             console.log(payload);
-            // payload = <Transaction xmlns="http://www.opengis.net/wfs" service="WFS" version="1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd"/>
-            // <Transaction xmlns="http://www.opengis.net/wfs" service="WFS" version="1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/WFS-transaction.xsd http://192.168.4.33:9090/geoserver/grp/wfs/DescribeFeatureType?typename=fiware:nyc_buildings"> <Insert> <nyc_buildings> <geometry> <Polygon xmlns="http://www.opengis.net/gml" srsName="EPSG:3857"> <exterior> <LinearRing srsName="EPSG:3857"> <posList>-12682023.77343518 4567060.841291264 -11077457.675672762 2571137.15870874 -9629434.611838378 5819405.112715591 -12682023.77343518 4567060.841291264 </posList> </LinearRing> </exterior> </Polygon> </geometry> <bin>0</bin> </nyc_buildings> </Insert></Transaction>
+            
             url = 'http://localhost:8080/geoserver/wfs/';   // ???
-            
 
-            
             
             axios ({    // 형식이 이게 맞는지?
                 url,
@@ -92,20 +100,20 @@ function Header(props) {
                 processData: false,
                 data: payload,
                 headers:{
-                    "Content-Type": 'text/xml',
-                    
-            },
+                    "Content-Type": 'text/xml',    
+                },
             }).then((res)=>{
                 console.log(res)
             }).catch((err)=>{
                 console.log(err);
             })
 
-            // layer_.getSource().refresh(); 아닌듯
+            // layer_.getSource().refresh(); // 아닌듯
 
         })
         
-
+        // update public.dxf_polygon set geom = st_makevalid(geom) 데이터 업로드 이후에 해당 데이터 체크하여야함 
+        console.log(getMap().getLayers().getArray()[1].getLayers().getArray());
     }
 
     const handleCoordSysSelect = (e) =>{
@@ -136,9 +144,7 @@ function Header(props) {
             const _layers = result.layers;
             // const layers = getLayers(_dxfObject);
             
-            
-            
-            
+
             /**
              * 1. dxfObject key가 레이어 1개
              * 2. 레이어 배열 하나가 모여서 피쳐컬렉션이 됨
@@ -148,23 +154,8 @@ function Header(props) {
              * 6. 각각의 dxfObject를 순환하면서 
              */
 
-            // Object.keys(dxfObject).forEach(key => {
-            //     const obj = {};
-            //     obj.layer = key;
-            //     obj.features = [];
-            //     const geometryType = checkGeometryType(dxfObject[key]);
-            //     obj.geometry_type = geometryType;
-            //     dxfObject[key].forEach(feature => {
-            //         if(!feature.vertices) {
-                        
-            //         } else if(feature.vertices.length === 1) {
-                        
-            //         } else if(feature.vertices.length > 1) {
 
-            //         }
-            //     })
-            // })
-            
+            debugger;
             setEntities(_entities);
             setLayers(_layers);
             setFile(e.target.files[0]);

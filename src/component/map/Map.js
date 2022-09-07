@@ -55,18 +55,45 @@ function Map(props) {
                 })
             ]
             
-            const wfsLayer = new TileLayer({
+            const lineLayer = new TileLayer({
                 visible: true,
                 source: new TileWMS({
                     url: 'http://localhost:8080/geoserver/demo/wms',
                     params: {
                         'FORMAT': 'image/png',
                         tiled: true,
-                        "LAYERS": 'demo:dxf_lineq',
+                        "LAYERS": 'demo:dxf_line',
+                        SRS : 'EPSG:5179'
+                    },
+                    serverType: 'geoserver',
+                })
+            });
+            const polygonLayer = new TileLayer({
+                visible: true,
+                source: new TileWMS({
+                    url: 'http://localhost:8080/geoserver/demo/wms',
+                    params: {
+                        'FORMAT': 'image/png',
+                        tiled: true,
+                        "LAYERS": 'demo:dxf_polygon',
                         SRS : 'EPSG:5179'
                     },
                     serverType: 'geoserver',
                     
+                })
+            });
+
+            const pointLayer = new TileLayer({
+                visible: true,
+                source: new TileWMS({
+                    url: 'http://localhost:8080/geoserver/demo/wms',
+                    params: {
+                        'FORMAT': 'image/png',
+                        tiled: true,
+                        "LAYERS": 'demo:dxf_point',
+                        SRS : 'EPSG:5179'
+                    },
+                    serverType: 'geoserver',
                 })
             });
 
@@ -76,7 +103,8 @@ function Map(props) {
             
             mapRef.current = new olMap({
                 target: 'map',
-                layers: [osmLyr, vectorLayerGroup, wfsLayer],
+                layers: [osmLyr, vectorLayerGroup, polygonLayer],
+                // layers: [osmLyr, vectorLayerGroup,  lineLayer, pointLayer],
                 // layers: [osmLyr, vectorLayerGroup],
                 view: new View({
                     center: [0,0],
@@ -187,9 +215,24 @@ function Map(props) {
                 })
                 // entities[key][0].type 를 통해 타입 읽고 이를 MULTIPOINT, MULTILINESTRING, MULTIPOLYGON 으로 변경 필요
                 // polygon도 type은 POLYLINE, LWPOLYLINE 로 올탠데? ex C0062243 => 가능한것만 바꾸는 걸로
+                debugger;
                 const newFeature = new Feature({
                     geometry: _geometry, 
-                    name : key, 
+                    geom: _geometry, 
+                     
+                    layer : key,
+                    color : layers[key]?.color,
+                    colorindex : layers[key]?.colorIndex,
+                    visible : layers[key]?.visible,
+                    type : entities[key][0]?.type,
+                    linetype : entities[key][0]?.lineType,
+                    linetypescale : entities[key][0]?.lineTypeScale,
+                    lineweight : entities[key][0]?.lineweight,
+                    inpaperspace : entities[key][0]?.inPaperSpace,
+                    ownerhandle : entities[key][0]?.ownerHandle,
+                    
+                    // depth : // 수치지도의 폴리곤과 라인에만 있음
+                    
                                 
                 });
                 const featureStyle = [
@@ -237,6 +280,10 @@ function Map(props) {
         } 
         
     },[file, coordSys])
+
+    useEffect(() => {
+        if(mapRef.current) console.log(mapRef.current.getLayers().getArray()[2])
+    }, [mapRef.current])
 
     return(
         <div id='map' />
