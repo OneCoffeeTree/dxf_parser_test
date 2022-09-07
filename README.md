@@ -1,3 +1,7 @@
+데이터 업로드후에 update public.dxf_polygon set geom = st_makevalid(geom) 실행하여 데이터 체크할것
+
+#
+
 완료
 
 #
@@ -50,6 +54,13 @@
 
 10. 다운로드시 좌표계 문제 해결필요 설정한 좌표값으로 레이어좌표계에 집어넣어서 생기는것으로 추정 => 좌표계 변경을 안해서 그런것이였음
 
+11. dxf파일 변환하여 만든 벡터레이어를 저장해야함 \
+    -1 https://stackoverflow.com/questions/18740345/how-to-save-features-layer-in-openlayers \
+    https://openlayers.org/en/latest/apidoc/module-ol_format_GeoJSON-GeoJSON.html#writeFeature \
+    두개 참조해야? 방법 물어볼것
+
+    -2 저장은 되긴 하는데 폴리곤과 라인만 됨 포인트 개선 필요 => 포인트 타입의 문제였음
+
 #
 
 1. 피쳐/피쳐컬랙션에 속성 집어넣기
@@ -60,13 +71,6 @@
 
    -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
 
-1. dxf파일 변환하여 만든 벡터레이어를 저장해야함 \
-   -1 https://stackoverflow.com/questions/18740345/how-to-save-features-layer-in-openlayers \
-   https://openlayers.org/en/latest/apidoc/module-ol_format_GeoJSON-GeoJSON.html#writeFeature \
-   두개 참조해야? 방법 물어볼것
-
-   -2 저장은 되긴 하는데 폴리곤과 라인만 됨 포인트 개선 필요
-
-1. cors 해결 필요 proxy 걸고 일단 진행
+1. cors 해결 필요 proxy 걸고 일단 진행, 종종 프록시 걸어줬음에도 cors 발생
 
 #
