@@ -83,8 +83,20 @@ const getLayerType = function(entities,key) {
     
     return type;
 }
+
+const getParam = function (entities, layers, key, name){
+    if(layers[key][name] !== null && layers[key][name] !== undefined){
+        return layers[key][name];
+    }else if(entities[key][0][name] !== null && entities[key][0][name] !== undefined){
+        return entities[key][0][name];
+    }else{
+        return null;
+    }
+}
+
 export {
     groupByLayer,
     getLayers,
     getLayerType,
+    getParam,
 }

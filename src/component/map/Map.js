@@ -18,7 +18,7 @@ import { click } from 'ol/events/condition';
 
 import { DxfContext } from '../../common/context/DxfContext';
 import { defsData, proj } from '../../data/proj';
-
+import { getParam } from '../../common/Utils';
 import proj4 from 'proj4';
 
 
@@ -131,27 +131,23 @@ function Map(props) {
                 // layer 선택시 동작해야할것 넣기?
                 // console.log(e);
             })
-
         }
-
         setMap(mapRef.current);
         setCoordSys(defsData[0][0]);
-
     }, [])
 
     useEffect(()=>{ // 파일이 변경되거나 좌표계가 변경될 시
         mapRef.current.getLayers().getArray()[1].getLayers().clear(); 
         
         if(entities){
-            Object.keys(entities).forEach(key => { // 레이어 뽑기
+            Object.keys(entities).forEach(key => { // 레이어
 
-                let layerCoordArr =[] ; // 피쳐컬렉션 [[[x,y],[x,y],[x,y],[]],[]]
+                let layerCoordArr =[] ; 
                 let _geometry;
                 let type;
-                let pol_chk =true; // cad파일의 구성이 폴리곤이 없기때문에 lineString이 polygon인지 아닌지 체크하기 위해 사용
-                // lineString중에서 시작점과 끝점이 같으면 polygon? F0017111 경우에는 line+polygin 섞여있는데 이런경우에는? => 라인으로 분류
-                entities[key].forEach(feature => { // 피쳐 뽑기
-                    
+                let pol_chk =true; 
+                
+                entities[key].forEach(feature => { // 피쳐 
                     if(feature.type==='POINT' || feature.type==='TEXT' ||feature.type==='CIRCLE' ||feature.type==='INSERT'){
                         if(feature.position){
                             layerCoordArr.push(proj4(coordSys, 'EPSG:3857',[feature.position.x,feature.position.y]))
@@ -160,7 +156,6 @@ function Map(props) {
                             layerCoordArr.push(proj4(coordSys, 'EPSG:3857',[feature.endPoint.x,feature.endPoint.y]))
                         }
                         type = 'MultiPoint'
-
                     }else if(feature.type==='POLYLINE' || feature.type==='LWPOLYLINE'){
                         if(feature.vertices) {
                             const featureCoordArr =[] ; // 피쳐
@@ -170,13 +165,10 @@ function Map(props) {
                             if(featureCoordArr[0][0] !== featureCoordArr[featureCoordArr.length-1][0] && featureCoordArr[0][1] !== featureCoordArr[featureCoordArr.length-1][1]){
                                 pol_chk = false;
                             }
-                            
                             layerCoordArr.push(featureCoordArr);
                         }
                         type = 'MultiLineString'
-                        
                     }else if(feature.type==='POLYGON' || feature.type==='LWPOLYGON'){
-                        
                         type = 'MultiPolygon'
                     }                    
                 })
@@ -184,24 +176,13 @@ function Map(props) {
                     type='MultiPolygon';
                     layerCoordArr = [layerCoordArr]
                 }
-
-
                 if(type === 'MultiPoint'){
                     _geometry = new MultiPoint(layerCoordArr)
                 }else if(type === 'MultiLineString'){
-                    
-                    // if(pol_chk){
-                    //     _geometry = new MultiPolygon([layerCoordArr]);
-                        
-                    // }else{
-                        _geometry = new MultiLineString(layerCoordArr);
-                    // }
+                    _geometry = new MultiLineString(layerCoordArr);
                 }else if(type === 'MultiPolygon'){
                     _geometry = new MultiPolygon(layerCoordArr);
                 }
-                
-                // Object.prototype.hasOwnProperty() 사용하여 key 값이 있는지 확인하고 이를 분기로 있을경우 속성 받고 없을경우 name:key, color:black ??
-                // layer에 있는 color값이 10진이기 때문에 16진으로 변환후 적용이 필요함
                 
                 const color = '#'+layers[key].color.toString(16).padStart(6,0);
 
@@ -213,28 +194,32 @@ function Map(props) {
                         format: new GeoJSON(),
                     })
                 })
-                // entities[key][0].type 를 통해 타입 읽고 이를 MULTIPOINT, MULTILINESTRING, MULTIPOLYGON 으로 변경 필요
-                // polygon도 type은 POLYLINE, LWPOLYLINE 로 올탠데? ex C0062243 => 가능한것만 바꾸는 걸로
-                debugger;
+                
                 const newFeature = new Feature({
                     geometry: _geometry, 
                     geom: _geometry, 
-                     
                     layer : key,
-                    color : layers[key]?.color,
-                    colorindex : layers[key]?.colorIndex,
-                    visible : layers[key]?.visible,
-                    type : entities[key][0]?.type,
-                    linetype : entities[key][0]?.lineType,
-                    linetypescale : entities[key][0]?.lineTypeScale,
-                    lineweight : entities[key][0]?.lineweight,
-                    inpaperspace : entities[key][0]?.inPaperSpace,
-                    ownerhandle : entities[key][0]?.ownerHandle,
+                     
                     
-                    // depth : // 수치지도의 폴리곤과 라인에만 있음
-                    
+                    color : getParam(entities, layers, key, 'color'),
+                    colorindex : getParam(entities, layers, key, 'colorIndex'),
+                    depth : getParam(entities, layers, key, 'depth'),
+                    elevation : getParam(entities, layers, key, 'depth'),
+                    extrusiondirectionx : getParam(entities, layers, key, 'extrusionDirectionX'),
+                    extrusiondirectiony : getParam(entities, layers, key, 'extrusionDirectionY'),
+                    extrusiondirectionz : getParam(entities, layers, key, 'extrusionDirectionZ'),
+                    hascontinuouslinetypepattern : getParam(entities, layers, key, 'hasContinuousLinetypePattern'),
+                    inpaperspace : getParam(entities, layers, key, 'inPaperSpace'),
+                    linetype : getParam(entities, layers, key, 'lineType'),
+                    linetypescale : getParam(entities, layers, key, 'lineTypeScale'),
+                    lineweight : getParam(entities, layers, key, 'lineweight'),
+                    ownerhandle : getParam(entities, layers, key, 'ownerHandle'),
+                    shape : getParam(entities, layers, key, 'shape'),
+                    type : getParam(entities, layers, key, 'type'),
+                    visible : getParam(entities, layers, key, 'visible'),
                                 
                 });
+                debugger;
                 const featureStyle = [
                     new Style({
                         stroke: new Stroke({

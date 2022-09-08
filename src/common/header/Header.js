@@ -86,8 +86,9 @@ function Header(props) {
             
             payload= new XMLSerializer().serializeToString(
                 formatWFS.writeTransaction(layer_.getSource().getFeatures(), null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
-            );
+                );
                 
+            debugger;
             console.log(payload);
             
             url = 'http://localhost:8080/geoserver/wfs/';   // ???
