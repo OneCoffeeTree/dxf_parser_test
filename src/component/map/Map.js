@@ -217,9 +217,10 @@ function Map(props) {
                     shape : getParam(entities, layers, key, 'shape'),
                     type : getParam(entities, layers, key, 'type'),
                     visible : getParam(entities, layers, key, 'visible'),
-                                
+                    select : getParam(entities, layers, key, 'select'),
+                    
                 });
-                debugger;
+                
                 const featureStyle = [
                     new Style({
                         stroke: new Stroke({

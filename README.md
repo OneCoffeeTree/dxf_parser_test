@@ -65,23 +65,25 @@
 
     -1 Geometry type (GeometryCollection) does not match column type (MultiPolygon)
 
+13. 피쳐/피쳐컬랙션에 속성 집어넣기
+
+    -1 현재 dxfObject에는 entities만 정리하여 들어가 있고 tables의 속성값들은 들어가 있지 않음 변경할것
+
+    -2 https://vagran.github.io/dxf-viewer-example/ 와 색상이 다른데 값이 지정이 안되어 검은색으로 표시되던것을 하얀색으로 값을 줘서 그런것
+
+    -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
+
+    -4 handle을 제외한 속성들은 집어넣었으나 hadle의 경우 대표님께 여쭤보고 진행하기
+
 #
 
-1. 피쳐/피쳐컬랙션에 속성 집어넣기
+1. 다운로드시 geoserver 에 올라가는 데이터가 branch의 체크박스 체크에 따라서 달라지게 할것
 
-   -1 현재 dxfObject에는 entities만 정리하여 들어가 있고 tables의 속성값들은 들어가 있지 않음 변경할것
-
-   -2 https://vagran.github.io/dxf-viewer-example/ 와 색상이 다른데 값이 지정이 안되어 검은색으로 표시되던것을 하얀색으로 값을 줘서 그런것
-
-   -3 색상을 제외한 나머지 속성들은 아직 못집어넣음
-
-   -4 handle을 제외한 속성들은 집어넣었으나 hadle의 경우 대표님께 여쭤보고 진행하기
+   -1 select 값이 branch.js 에서 전달이 안되고 있음
 
 1. cors 해결 필요 proxy 걸고 일단 진행, 종종 프록시 걸어줬음에도 cors 발생
 
 1. Map.js 에서 line/polygon 구분 할때 vertices 수가 4개 이상인지 체크할것
-
-1. 다운로드시 geoserver 에 올라가는 데이터가 branch의 체크박스 체크에 따라서 달라지게 할것
 
 1. 레이어 클릭시 반응?
 

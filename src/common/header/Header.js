@@ -1,5 +1,5 @@
 import './Header.css'
-import { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import { Button,  Typography } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import DxfParser from "dxf-parser";
@@ -44,10 +44,11 @@ function Header(props) {
     }
 
     const onClickDownload = () =>{
-
+        
         const layers_ = getMap().getLayers().getArray()[1].getLayers().getArray();
         // console.log(layers_);
         layers_.forEach( layer_ =>{
+            
             let payload;
             let url;
             // console.log( `${layer_} : ${layer_.values_.type}`);
@@ -68,12 +69,6 @@ function Header(props) {
                 srsName : 'EPSG:3857' // 좌표계 명칭 
             })
             
-            // 수정 필요
-            // layer_.getSource().getFeatures()[0].getProperties().geometry.transform('EPSG:3857',coordSys);
-            // layer_.getSource().getFeatures()[0].setProperties({geom : layer_.getSource().getFeatures()[0].getProperties().geometry}); // 얕은 복사임 나중에 수정 필요
-            // layer_.getSource().getFeatures()[0].setProperties({layer : layer_.getSource().getFeatures()[0].getProperties().name});
-            // layer_.getSource().getFeatures()[0].setProperties({color : layers[layer_.getSource().getFeatures()[0].getProperties().name].color});
-            // layer_.getSource().getFeatures()[0].setProperties({colorindex : layers[layer_.getSource().getFeatures()[0].getProperties().name].colorIndex});
 
             console.log(layers);
             console.log(entities);
@@ -81,20 +76,20 @@ function Header(props) {
             
 
             
-            debugger;
+            
             // delete layer_.getSource().getFeatures()[0].getProperties().geometry;    // 삭제 안되는 이유?
             
             payload= new XMLSerializer().serializeToString(
                 formatWFS.writeTransaction(layer_.getSource().getFeatures(), null, null, formatGML)  // 하나의 레이어에 피쳐를 추가/수정/삭제
                 );
                 
-            debugger;
+            
             console.log(payload);
             
             url = 'http://localhost:8080/geoserver/wfs/';   // ???
 
             
-            axios ({    // 형식이 이게 맞는지?
+            axios ({    // 
                 url,
                 method: 'POST',
                 dataType: 'xml',
@@ -104,7 +99,28 @@ function Header(props) {
                     "Content-Type": 'text/xml',    
                 },
             }).then((res)=>{
-                console.log(res)
+                
+                
+                if(res.status === 200){
+                    // http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=dxf:dxf_polygon&outputformat=SHAPE-ZIP
+                    // const params = {
+                    //     service : 'WFS',
+                    //     version : '1.0.0',
+                    //     request : 'GetFeature',
+                    //     typeName : 'demo:dxf_polygon',
+                    //     outputformat : 'SHAPE-ZIP',
+                    // };
+                    // window.open('http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=demo:dxf_polygon&outputformat=SHAPE-ZIP','_blank');
+
+                    // const link = React.createElement('a', { href: 'http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=demo:dxf_polygon&outputformat=SHAPE-ZIP'});
+                    const link = document.createElement('a');
+                    link.href = 'http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=demo:dxf_polygon&outputformat=SHAPE-ZIP';
+                    
+                    link.click();
+
+                }else{
+                    throw new Error();
+                }
             }).catch((err)=>{
                 console.log(err);
             })
@@ -156,7 +172,7 @@ function Header(props) {
              */
 
 
-            debugger;
+            
             setEntities(_entities);
             setLayers(_layers);
             setFile(e.target.files[0]);

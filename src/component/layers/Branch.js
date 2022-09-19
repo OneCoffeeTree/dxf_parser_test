@@ -101,10 +101,9 @@ function Branch() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
                 {   
                 
-                layers ? 
+                    layers ? 
                         Object.keys(layers).map((ele, idx)=>{
                             return (
-                                
                                 
                                     <FormControlLabel
                                         key={ele}
